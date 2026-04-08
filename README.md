@@ -1,25 +1,24 @@
 # Dan's Dungeon
 
-Dan's Dungeon is a browser-based Pitfall-style action platformer built with Phaser and TypeScript. The first playable is a short mini-adventure with five connected rooms, treasure collection, moving hazards, ladders, pits, score, lives, and a countdown timer.
+![Dan's Dungeon title art](public/images/title-box-art-refined.png)
+
+Dan's Dungeon is a browser-based retro action platformer built with Phaser 3, TypeScript, and Vite. The current playable is a compact temple run with five connected rooms, treasure collection, moving hazards, ladders, pits, score, lives, and a countdown timer.
+
+## What is in the repo
+
+- `src/game/scenes/` contains the Boot, Title, Game, and End scenes.
+- `src/game/state/RunState.ts` owns score, lives, timer, and collected treasure state.
+- `src/game/data/rooms.ts` is the room-authoring source of truth.
+- `public/images/title-box-art-refined.png` is the title graphic loaded by BootScene.
+- `docs/` contains architecture, room-authoring, debugging, and art-pipeline notes.
 
 ## Run locally
 
-1. Install Node.js.
+1. Install Node.js 20+.
 2. From `E:\Sandbox\dungeon-dan`, run `npm install`.
 3. Start the dev server with `npm run dev`.
-4. Run tests with `npm test`.
-
-## OpenAI Images API
-
-Python 3.12 and the `openai` package are now installed on this machine for higher-quality title art generation.
-
-1. Set `OPENAI_API_KEY` in your shell or user environment.
-2. From `E:\Sandbox\dungeon-dan`, run:
-   `python scripts/generate_title_art.py`
-3. The generated bitmap will be written to `output/imagegen/title-box-art-api.png`.
-
-You can also point the script at a custom prompt file:
-`python scripts/generate_title_art.py --prompt-file docs/title-art-prompt.txt --out output/imagegen/title-box-art-v2.png`
+4. Build a production bundle with `npm run build`.
+5. Run tests with `npm test`.
 
 ## Controls
 
@@ -28,17 +27,29 @@ You can also point the script at a custom prompt file:
 - `P`: pause
 - `R`: restart the run
 
-## Notes
+## Project notes
 
-- All art is generated in code with simple retro shapes and colors.
+- The browser title and public-facing name should remain `Dan's Dungeon`.
+- Gameplay sprites and textures are generated in `src/game/scenes/BootScene.ts`.
+- The title splash is a static image asset loaded by BootScene from `public/images/title-box-art-refined.png`.
 - Sound effects are oscillator-based and do not rely on external audio assets.
 - Room content is data-driven through typed room definitions in `src/game/data/rooms.ts`.
+
+## Title art workflow
+
+Python 3.12 and the `openai` package are used locally for higher-quality title art generation.
+
+1. Set `OPENAI_API_KEY` in your shell or user environment.
+2. From `E:\Sandbox\dungeon-dan`, run `python scripts/generate_title_art.py`.
+3. Generated images should be written under ignored output paths such as `output/imagegen/title-box-art-api.png`.
+
+You can also point the script at a custom prompt file:
+`python scripts/generate_title_art.py --prompt-file docs/title-art-prompt.txt --out output/imagegen/title-box-art-v2.png`
 
 ## Architecture
 
 - Player movement and platform support are handled by custom scene logic in `src/game/scenes/GameScene.ts`, not Phaser Arcade physics.
 - Hazard lanes start from room-authored `minX` and `maxX`, then clamp to platform-derived safe travel bounds when a room loads.
-- Generated textures for Dan, ladders, relics, and monsters live in `src/game/scenes/BootScene.ts`.
 - Run state, scoring, treasure persistence, lives, and timer flow through `src/game/state/RunState.ts`.
 
 ## Docs

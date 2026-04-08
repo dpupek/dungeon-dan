@@ -1,6 +1,6 @@
 # Art Pipeline
 
-All art is generated in `src/game/scenes/BootScene.ts`. There are no external sprite sheets in the current build.
+Most gameplay art is generated in `src/game/scenes/BootScene.ts`. The title-screen key art is an external image asset loaded by BootScene from `public/images/title-box-art-refined.png`. There are no external gameplay sprite sheets in the current build.
 
 ## Current generated textures
 
