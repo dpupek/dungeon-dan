@@ -1,6 +1,6 @@
 # Gameplay Architecture
 
-Temple Runaway is a small Phaser game, but the gameplay rules are intentionally split across data, state, and scene code.
+Dan's Dungeon is a small Phaser game, but the gameplay rules are intentionally split across data, state, and scene code.
 
 ## Core split
 

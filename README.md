@@ -1,11 +1,11 @@
-# Temple Runaway
+# Dan's Dungeon
 
-Temple Runaway is a browser-based Pitfall-style action platformer built with Phaser and TypeScript. The first playable is a short mini-adventure with five connected rooms, treasure collection, moving hazards, ladders, pits, score, lives, and a countdown timer.
+Dan's Dungeon is a browser-based Pitfall-style action platformer built with Phaser and TypeScript. The first playable is a short mini-adventure with five connected rooms, treasure collection, moving hazards, ladders, pits, score, lives, and a countdown timer.
 
 ## Run locally
 
 1. Install Node.js.
-2. From `C:\Sandbox\danmade\danmade-playground\pitfall-clone`, run `npm install`.
+2. From `E:\Sandbox\dungeon-dan`, run `npm install`.
 3. Start the dev server with `npm run dev`.
 4. Run tests with `npm test`.
 
@@ -14,7 +14,7 @@ Temple Runaway is a browser-based Pitfall-style action platformer built with Pha
 Python 3.12 and the `openai` package are now installed on this machine for higher-quality title art generation.
 
 1. Set `OPENAI_API_KEY` in your shell or user environment.
-2. From `C:\Sandbox\danmade\danmade-playground\pitfall-clone`, run:
+2. From `E:\Sandbox\dungeon-dan`, run:
    `python scripts/generate_title_art.py`
 3. The generated bitmap will be written to `output/imagegen/title-box-art-api.png`.
 

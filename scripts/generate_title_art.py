@@ -10,7 +10,7 @@ from openai import OpenAI
 
 DEFAULT_PROMPT = """Use case: illustration-story
 Asset type: retro game title screen key art
-Primary request: Create a faux Atari-era adventure box-art painting for the game Temple Runaway.
+Primary request: Create a faux Atari-era adventure box-art painting for Dan's Dungeon.
 Scene/backdrop: moonlit jungle temple at night, weathered wooden platforms in the foreground, ruined stone temple silhouette, humid mist, dramatic sky.
 Subject: Dan the Hobbit front and center as a heroic but slightly comic adventurer, with curly brown hair, expressive face, pale shirt, brown waistcoat, short hobbit proportions, bare feet. Include Paul the angry crab, Dave the black goat, Mark the demented wasp, and several glowing golden clams with blue eyes.
 Style/medium: polished painted poster illustration, pseudo-photoreal, deliberately much more dramatic and refined than the actual game graphics, inspired by late 1970s to early 1980s adventure game box art.
