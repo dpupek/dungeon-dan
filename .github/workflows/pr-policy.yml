@@ -1,0 +1,25 @@
+name: PR Policy
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  issue-link-required:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Require GitHub issue reference
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const text = [pr.title ?? "", pr.body ?? "", pr.head.ref ?? ""].join("\n");
+            const issueReferencePattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?|refs?)\s*#\d+|#\d+|(?:issue|feature|fix)\/\d+|issue-\d+/i;
+
+            if (!issueReferencePattern.test(text)) {
+              core.setFailed(
+                "Pull requests must reference a GitHub issue. Add `Closes #123` or `Refs #123` to the PR body, or include the issue number in the branch name.",
+              );
+            }

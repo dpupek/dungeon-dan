@@ -55,6 +55,8 @@ Expected validation baseline:
 - Keep patches minimal and scoped.
 - Preserve gameplay behavior unless the task explicitly asks for gameplay changes.
 - Prefer updating existing docs and systems over introducing parallel structures.
+- Treat the GitHub issue as the source of truth for scoped work. If no issue exists for the requested change, recommend creating one before the change is merged.
+- When working on a contributor-facing change, align with `CONTRIBUTING.md` and the pull request template.
 - Check `git remote -v` before any repo-publishing work. Because this repo was split from another local repo, `origin` may be wrong in a fresh clone or after local migration.
 - If `origin` points at a local path or old source repository, rename it to something explicit like `split-source` before adding the GitHub remote as `origin`.
 - If you touch naming, keep the repo consistent with **Dan's Dungeon**.
