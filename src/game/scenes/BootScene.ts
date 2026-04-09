@@ -7,7 +7,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.image("title-box-art", "/images/title-box-art-refined.png");
+    this.load.image("title-box-art", `${import.meta.env.BASE_URL}images/title-box-art-refined.png`);
   }
 
   create(): void {
