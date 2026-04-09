@@ -55,6 +55,8 @@ Expected validation baseline:
 - Keep patches minimal and scoped.
 - Preserve gameplay behavior unless the task explicitly asks for gameplay changes.
 - Prefer updating existing docs and systems over introducing parallel structures.
+- Check `git remote -v` before any repo-publishing work. Because this repo was split from another local repo, `origin` may be wrong in a fresh clone or after local migration.
+- If `origin` points at a local path or old source repository, rename it to something explicit like `split-source` before adding the GitHub remote as `origin`.
 - If you touch naming, keep the repo consistent with **Dan's Dungeon**.
 - If you find references to `Temple Runaway` or `pitfall-clone`, first determine whether they are:
   - intentional historical references, or
@@ -75,6 +77,7 @@ Expected validation baseline:
 
 - The title-art workflow expects `OPENAI_API_KEY` to be set before running `scripts/generate_title_art.py`.
 - Generated output should go under ignored output paths, not committed repo-root scratch files.
+- Gameplay textures are generated in `src/game/scenes/BootScene.ts`, but the title splash is a committed static image loaded from `public/images/title-box-art-refined.png`.
 - Avoid committing local dev artifacts such as logs.
 
 ## Split provenance

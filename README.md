@@ -54,6 +54,8 @@ You can also point the script at a custom prompt file:
 
 ## Docs
 
+- `docs/repository-bootstrap.md`
+- `docs/asset-inventory.md`
 - `docs/gameplay-architecture.md`
 - `docs/room-authoring.md`
 - `docs/debugging-checklist.md`
