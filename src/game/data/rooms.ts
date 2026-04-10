@@ -2,6 +2,9 @@ import { GAME_CONFIG } from "../config";
 import type { RoomDefinition, RoomId } from "../types";
 
 const floorY = GAME_CONFIG.world.floorY;
+const lowerRouteY = floorY + 108;
+const lowerRouteWidth = GAME_CONFIG.world.width;
+const lowerRouteX = GAME_CONFIG.world.width / 2;
 
 export const ROOM_ORDER: RoomId[] = [
   "canopy-gate",
@@ -19,6 +22,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       { x: 120, y: floorY, width: 240, height: 28 },
       { x: 530, y: floorY, width: 520, height: 28 },
       { x: 740, y: 340, width: 180, height: 24 },
+      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: 20 },
     ],
     ladders: [{ x: 740, y: 404, width: 28, height: 128 }],
     hazards: [
@@ -50,6 +54,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       { x: 520, y: floorY, width: 220, height: 28 },
       { x: 840, y: floorY, width: 200, height: 28 },
       { x: 470, y: 320, width: 160, height: 24 },
+      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: 20 },
     ],
     ladders: [{ x: 470, y: 394, width: 28, height: 148 }],
     hazards: [
@@ -93,6 +98,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       { x: 500, y: floorY, width: 320, height: 28 },
       { x: 270, y: 360, width: 180, height: 24 },
       { x: 690, y: 280, width: 170, height: 24 },
+      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: 20 },
     ],
     ladders: [
       { x: 270, y: 404, width: 28, height: 120 },
@@ -142,9 +148,10 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       { x: 820, y: floorY, width: 220, height: 28 },
       { x: 310, y: 330, width: 160, height: 24 },
       { x: 640, y: 250, width: 180, height: 24 },
+      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: 20 },
     ],
     ladders: [
-      { x: 310, y: 394, width: 28, height: 146 },
+      { x: 310, y: 424, width: 28, height: 206 },
       { x: 640, y: 292, width: 28, height: 124 },
     ],
     hazards: [
@@ -189,6 +196,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       { x: 530, y: floorY, width: 520, height: 28 },
       { x: 510, y: 330, width: 180, height: 24 },
       { x: 820, y: 250, width: 160, height: 24 },
+      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: 20 },
     ],
     ladders: [
       { x: 510, y: 394, width: 28, height: 146 },

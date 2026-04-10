@@ -48,6 +48,27 @@ Check:
 
 Remember that authored lane bounds are only hints. The runtime safe span should keep the visible sprite supported.
 
+## Dan can drop into the basement but cannot recover
+
+Check:
+
+- basement-route platforms in `src/game/data/rooms.ts`
+- whether the basement route still reaches the room edge for transition
+- whether the intended recovery ladder exists in this room or a reachable adjacent room
+- whether a basement obstacle blocks Dan before the actual room boundary
+
+The current game uses authored geometry for basement recovery. If Dan is trapped, fix the room layout before adding new engine rules.
+
+## Dan changes rooms and appears on the wrong level
+
+Check:
+
+- whether the exit edge is reachable from the level Dan is leaving
+- whether the destination room has edge-supporting geometry on the matching level
+- `resolveSpawnPoint` and transition spawn selection in `src/game/scenes/GameScene.ts`
+
+Ground-floor transitions should keep Dan on the ground floor, and basement transitions should keep him in the basement unless the room layout makes that impossible.
+
 ## Sprite looks wrong but collisions seem wrong too
 
 Check both:

@@ -29,7 +29,7 @@ export const GAME_CONFIG: GameConfig = {
   world: {
     width: 960,
     height: 540,
-    floorY: 468,
+    floorY: 414,
   },
   physics: {
     gravityY: 1100,

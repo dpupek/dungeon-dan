@@ -4,6 +4,12 @@
 
 Dan's Dungeon is a browser-based retro action platformer built with Phaser 3, TypeScript, and Vite. The current playable is a compact temple run with five connected rooms, treasure collection, moving hazards, ladders, pits, score, lives, and a countdown timer.
 
+## Live game
+
+Play the latest deployed build at:
+
+- `https://dpupek.github.io/dungeon-dan/`
+
 ## What is in the repo
 
 - `src/game/scenes/` contains the Boot, Title, Game, and End scenes.
@@ -55,6 +61,7 @@ You can also point the script at a custom prompt file:
 ## Docs
 
 - `CONTRIBUTING.md`
+- `docs/issue-6-basement-recovery.md`
 - `docs/repository-bootstrap.md`
 - `docs/asset-inventory.md`
 - `docs/gameplay-architecture.md`

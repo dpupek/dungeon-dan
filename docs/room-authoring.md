@@ -11,6 +11,20 @@ Platforms use center-based coordinates:
 
 The platform top is `y - height / 2`. Ground monsters should usually sit with their feet close to that top edge.
 
+### Basement recovery routes
+
+Basement routes are also authored as ordinary platforms in room data. There is no separate engine feature for "basement" in the current build.
+
+Use these rules:
+
+- An intentional fall catch should land Dan on authored basement geometry instead of sending him straight below the world bounds.
+- Basement recovery platforms should run continuously across the room unless a future issue explicitly introduces a different authored convention.
+- Basement exits remain edge-driven. If a room has a left or right exit, leave enough walkable space near that boundary for Dan to reach the edge transition.
+- If you use a basement wall or obstacle shape, do not block the actual boundary edge that is meant to transition to the next room.
+- A basement drop does not need same-room recovery, but it must lead to a readable route toward a future ladder.
+- Avoid layouts that trap Dan in the basement with no ladder and no practical edge exit.
+- If Dan transitions between rooms from the basement or the ground floor, the authored edge geometry should support arriving on that same level in the next room.
+
 ## Ladders
 
 Ladders also use center-based coordinates:
@@ -52,3 +66,12 @@ Spawn points are safety-critical.
 - Use the same platform-top rule as player landing logic when choosing `y`
 
 If a room starts with instant death, inspect spawn coordinates before changing physics.
+
+## Basement validation
+
+After adding or changing a basement route:
+
+- Verify Dan can intentionally or accidentally fall onto it without dying immediately.
+- Verify the route still reaches a future ladder or room exit.
+- Verify room-edge exits still work from the basement if that room is meant to allow basement traversal.
+- Verify room transitions preserve Dan's current level when he moves between the basement and the ground floor.

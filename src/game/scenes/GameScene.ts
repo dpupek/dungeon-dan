@@ -167,6 +167,12 @@ export class GameScene extends Phaser.Scene {
     const moveDown = this.cursors.down.isDown || this.keys.down.isDown;
     const wantsJump =
       Phaser.Input.Keyboard.JustDown(this.cursors.space) || Phaser.Input.Keyboard.JustDown(this.keys.jump);
+    const hasSupport = this.findSupportingPlatform() !== null;
+    const wantsToStepOffLadder = this.isClimbing && hasSupport && (moveLeft || moveRight) && !moveUp && !moveDown;
+
+    if (wantsToStepOffLadder) {
+      this.isClimbing = false;
+    }
 
     if (this.activeLadder && (moveUp || moveDown || this.isClimbing)) {
       this.isClimbing = true;
@@ -392,7 +398,7 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private loadRoom(roomId: RoomId, spawnKey: "default" | "fromLeft" | "fromRight"): void {
+  private loadRoom(roomId: RoomId, spawnKey: "default" | "fromLeft" | "fromRight", transitionY?: number): void {
     this.controller.moveToRoom(roomId);
     this.runState = this.controller.snapshot;
     this.currentRoom = getRoomDefinition(roomId);
@@ -474,7 +480,7 @@ export class GameScene extends Phaser.Scene {
         this.treasureViews.push({ config: treasureConfig, sprite, sparkles });
       });
 
-    const spawn = this.currentRoom.spawn[spawnKey] ?? this.currentRoom.spawn.default;
+    const spawn = this.resolveSpawnPoint(spawnKey, transitionY);
     this.player.setPosition(spawn.x, spawn.y);
     this.player.setTint(0xffffff);
     this.vx = 0;
@@ -490,9 +496,9 @@ export class GameScene extends Phaser.Scene {
 
   private checkRoomTransitions(): void {
     if (this.player.x < -20 && this.currentRoom.exits.left) {
-      this.loadRoom(this.currentRoom.exits.left, "fromRight");
+      this.loadRoom(this.currentRoom.exits.left, "fromRight", this.player.y);
     } else if (this.player.x > GAME_CONFIG.world.width + 20 && this.currentRoom.exits.right) {
-      this.loadRoom(this.currentRoom.exits.right, "fromLeft");
+      this.loadRoom(this.currentRoom.exits.right, "fromLeft", this.player.y);
     }
   }
 
@@ -609,6 +615,53 @@ export class GameScene extends Phaser.Scene {
 
   private getHazardEdgeInset(hazard: HazardDefinition): number {
     return Math.max(8, hazard.width / 2 - 4);
+  }
+
+  private resolveSpawnPoint(
+    spawnKey: "default" | "fromLeft" | "fromRight",
+    transitionY?: number,
+  ): { x: number; y: number } {
+    const authoredSpawn = this.currentRoom.spawn[spawnKey] ?? this.currentRoom.spawn.default;
+    if (transitionY === undefined || spawnKey === "default") {
+      return authoredSpawn;
+    }
+
+    const preferredX = spawnKey === "fromLeft" ? 40 : GAME_CONFIG.world.width - 40;
+    const matchingPlatform = this.findTransitionPlatform(preferredX, transitionY);
+    if (!matchingPlatform) {
+      return authoredSpawn;
+    }
+
+    const span = this.getPlatformSpan(matchingPlatform, 12);
+    const top = this.getPlatformTop(matchingPlatform);
+    const clampedX = Phaser.Math.Clamp(preferredX, span.minX, span.maxX);
+
+    return {
+      x: clampedX,
+      y: top - GAME_CONFIG.player.height / 2,
+    };
+  }
+
+  private findTransitionPlatform(preferredX: number, transitionY: number): PlatformDefinition | null {
+    const targetFeetY = transitionY + GAME_CONFIG.player.height / 2;
+    let bestPlatform: PlatformDefinition | null = null;
+    let bestScore = Number.POSITIVE_INFINITY;
+
+    for (const platform of this.currentRoom.platforms) {
+      const span = this.getPlatformSpan(platform, 12);
+      if (preferredX < span.minX || preferredX > span.maxX) {
+        continue;
+      }
+
+      const top = this.getPlatformTop(platform);
+      const score = Math.abs(top - targetFeetY) + Math.abs(platform.x - preferredX) * 0.1;
+      if (score < bestScore) {
+        bestPlatform = platform;
+        bestScore = score;
+      }
+    }
+
+    return bestPlatform;
   }
 
   private getPlayerBounds(): Phaser.Geom.Rectangle {
