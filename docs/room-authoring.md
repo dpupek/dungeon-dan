@@ -11,6 +11,26 @@ Platforms use center-based coordinates:
 
 The platform top is `y - height / 2`. Ground monsters should usually sit with their feet close to that top edge.
 
+## Movement metrics
+
+Jump-space tuning should use the shared values in `src/game/movementMetrics.ts`.
+
+Current baseline:
+
+- max jump height: about `96px`
+- full jump duration: about `0.84s`
+- max flat jump distance at full run: about `176px`
+- comfortable authored gap: `104px`
+- hard authored gap: `136px`
+- minimum basement top-to-ground-floor top separation: `112px`
+
+Use these rules:
+
+- Keep mandatory horizontal jumps within the comfortable or hard range, not near the mathematical max.
+- Treat platform-distance tuning as a vertical-separation rule for basement vs ground floor. The basement top should stay more than one full Dan jump below the ground-floor top.
+- If an upper platform is intended to be jumpable from the ground floor, keep its top within the reachable band of the current jump.
+- If an upper platform is intentionally low for challenge, its underside should interrupt a full jump so Dan bumps his head instead of passing through it.
+
 ### Basement recovery routes
 
 Basement routes are also authored as ordinary platforms in room data. There is no separate engine feature for "basement" in the current build.
@@ -34,25 +54,26 @@ Ladders also use center-based coordinates:
 
 The gameplay ladder grab zone is intentionally taller and wider than the art, especially at the top, so Dan can climb down from a platform without pixel-perfect alignment.
 
-## Hazards
+## Actors
 
-Hazards use these important fields:
+Actor instances use these important fields:
 
+- `archetypeId`: reusable actor behavior and animation identity
 - `x`, `y`: initial sprite position
 - `width`, `height`: rendered size and movement-bound input
 - `minX`, `maxX`: coarse lane hint, not the final movement span
 
-At room load, `GameScene` resolves the platform that supports the hazard and clamps the hazard's runtime travel to a safe platform span. Author `minX` and `maxX` as the intended lane, then let the runtime clamp prevent edge overhang.
+At room load, `RoomRuntime` resolves the platform that supports the actor and clamps runtime travel to a safe platform span. Author `minX` and `maxX` as the intended lane, then let the runtime clamp prevent edge overhang.
 
 ### Ground monsters
 
-- Place `paul_crab` and `dave_goat` so their bottoms are near the platform top.
+- Place `paul-crab` and `dave-goat` so their bottoms are near the platform top.
 - Keep their lane centered on the platform they should patrol.
 - Do not hand-tune lanes right up to platform edges unless the danger is part of the design.
 
 ### Flying monsters
 
-- Place `mark_wasp` at the desired baseline flight height.
+- Place `mark-wasp` at the desired baseline flight height.
 - `swoopDepth` controls vertical amplitude.
 - `swoopRate` controls vertical tempo.
 - Horizontal motion still uses a platform-derived safe lane, so keep the wasp visually associated with one platform span.

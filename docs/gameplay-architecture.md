@@ -1,43 +1,55 @@
 # Gameplay Architecture
 
-Dan's Dungeon is a small Phaser game, but the gameplay rules are intentionally split across data, state, and scene code.
+Dan's Dungeon keeps Phaser as the render shell, but gameplay responsibilities now live behind explicit runtime modules and actor contracts.
 
 ## Core split
 
-- `src/game/data/rooms.ts`: author rooms as data. Platforms, ladders, hazards, relics, exits, and spawn points live here.
+- `src/game/data/rooms.ts`: author room geometry, exits, spawns, actor placement, and relic placement.
+- `src/game/content/archetypes.ts`: define reusable actor and relic archetypes with behavior and animation defaults.
+- `src/game/assets/manifest.ts`: define stable animation-set and texture keys.
 - `src/game/state/RunState.ts`: own run-level rules. Score, lives, timer, collected relic ids, room transitions, win, and loss live here.
+- `src/game/runtime/`: own scene-scoped gameplay runtime objects.
 - `src/game/scenes/BootScene.ts`: generate textures and boot-time assets in code.
-- `src/game/scenes/GameScene.ts`: render the current room and run the moment-to-moment movement, climbing, hazard motion, and overlap checks.
+- `src/game/scenes/GameScene.ts`: orchestrate the runtime, route input, and react to scene outcomes.
+
+## Runtime split
+
+- `GameSessionBridge`: adapts scene commands to run-state mutations.
+- `RoomRuntime`: owns platforms, ladders, hazard actors, relic actors, and room teardown.
+- `PlayerActor`: owns Dan's movement, climb logic, facing, and animation state.
+- `HazardActor`: owns per-instance hazard motion and presentation state.
+- `RelicActor`: owns relic idle presentation and collection teardown.
+- `SpawnResolver`: preserves ground-floor and basement spawn behavior across transitions.
+- `HudController` and `DeveloperConsoleController`: own overlay UI and debug input surfaces.
 
 ## Player movement
 
-The player does not rely on Phaser Arcade bodies for floor contact. Dan uses a custom controller that:
+The player still does not rely on Phaser Arcade bodies for floor contact. Dan uses a custom actor that:
 
 - applies velocity and gravity manually
 - resolves platform landing by finding a supporting platform near the player's feet
+- resolves low overhead platforms as real ceilings so jump-under spaces can force a head-bump
 - uses a larger ladder grab zone than the rendered ladder art
-- swaps generated textures based on grounded, climbing, and jump state
+- derives animation state from gameplay state and plays named Phaser sprite animations from the committed Dan spritesheet
 
-This is intentional. Earlier versions trusted Arcade collisions more directly and repeatedly regressed into falling through floors or hovering above platforms.
+This keeps floor support stable while making walking, climbing, hurt, jump, and fall presentation easier to extend.
 
-## Hazard movement
+## Actor and relic content
 
-Hazards are data-driven, but their runtime behavior is scene-owned.
+Rooms are still data-driven, but runtime presentation no longer depends on inline scene branching.
 
-- `minX` and `maxX` in room data are lane hints
-- the scene resolves a supporting platform for each hazard at room load
-- the scene computes `safeMinX` and `safeMaxX` from platform geometry and monster width
-- movement behaviors use the resolved safe bounds instead of the raw authored lane
-
-This keeps room authoring simple while preventing monsters from visibly walking off ledges.
+- room instances reference actor and relic archetypes
+- archetypes define behavior defaults and animation-set ids
+- room data continues to own geometry and placement
+- the runtime turns authored instances into disposable Phaser objects per room load
 
 ## Collision model
 
-- Player-vs-platform: custom support checks
+- Player-vs-platform: custom support checks through `RoomRuntime`
 - Player-vs-ladder: rectangle overlap against an expanded ladder zone
-- Player-vs-hazard: rectangle overlap against the monster sprite bounds
-- Player-vs-relic: rectangle overlap against the relic sprite bounds
+- Player-vs-hazard: rectangle overlap against hazard actor bounds
+- Player-vs-relic: rectangle overlap against relic actor bounds
 
 ## Practical rule
 
-When a visual change seems to affect gameplay, inspect both art and runtime geometry. In this project, render size, spawn position, ladder reach, and support bounds are tightly connected.
+When a visual change seems to affect gameplay, inspect both the asset manifest and the runtime geometry. In this project, animation keys, render size, spawn position, ladder reach, and support bounds are tightly connected.

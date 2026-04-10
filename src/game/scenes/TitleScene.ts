@@ -12,7 +12,7 @@ export class TitleScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     const art = this.add.image(width / 2, height / 2, "title-box-art");
-    const scale = Math.max(width / art.width, height / art.height);
+    const scale = Math.min(width / art.width, height / art.height);
     art.setScale(scale);
 
     const vignetteTop = this.add.rectangle(width / 2, 60, width, 130, 0x091018, 0.42);

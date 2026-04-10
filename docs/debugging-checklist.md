@@ -6,7 +6,8 @@ Use this file when a gameplay regression appears after art, room, or movement ch
 
 Check these first:
 
-- `src/game/scenes/GameScene.ts`: `handleMovement`, `resolvePlatformLanding`, `findSupportingPlatform`
+- `src/game/runtime/actors/PlayerActor.ts`: movement update and platform landing logic
+- `src/game/runtime/RoomRuntime.ts`: support-platform geometry queries
 - `src/game/data/rooms.ts`: player spawn point and platform coordinates for the current room
 - player render size vs. support assumptions in `GAME_CONFIG.player`
 
@@ -20,7 +21,7 @@ Questions to answer:
 
 Check:
 
-- `resolvePlatformLanding` snap position
+- `PlayerActor` landing snap position
 - player texture/display size
 - platform top calculation
 
@@ -30,7 +31,7 @@ If the sprite changed recently, verify the art proportions still match the colli
 
 Check:
 
-- `findActiveLadder` in `src/game/scenes/GameScene.ts`
+- `findActiveLadder` in `src/game/runtime/RoomRuntime.ts`
 - ladder top reach vs. rendered ladder height
 - player x-centering while climbing
 - ladder coordinates in `src/game/data/rooms.ts`
@@ -41,8 +42,8 @@ Bias toward a forgiving top-entry zone. Strict ladders feel broken fast.
 
 Check:
 
-- `resolveHazardTravelBounds`
-- `findHazardPlatform`
+- `resolveHazardTravelBounds` in `src/game/runtime/RoomRuntime.ts`
+- `findHazardPlatform` in `src/game/runtime/RoomRuntime.ts`
 - monster display width
 - room-authored `minX` and `maxX`
 
@@ -65,7 +66,7 @@ Check:
 
 - whether the exit edge is reachable from the level Dan is leaving
 - whether the destination room has edge-supporting geometry on the matching level
-- `resolveSpawnPoint` and transition spawn selection in `src/game/scenes/GameScene.ts`
+- `resolveSpawnPoint` and transition spawn selection in `src/game/runtime/SpawnResolver.ts`
 
 Ground-floor transitions should keep Dan on the ground floor, and basement transitions should keep him in the basement unless the room layout makes that impossible.
 
@@ -74,6 +75,6 @@ Ground-floor transitions should keep Dan on the ground floor, and basement trans
 Check both:
 
 - `src/game/scenes/BootScene.ts` for the texture shape
-- `src/game/scenes/GameScene.ts` for display size, snap position, lane bounds, and overlap checks
+- `src/game/runtime/` for display size, animation state, snap position, lane bounds, and overlap checks
 
 In this project, visual tuning and gameplay tuning often need to move together.

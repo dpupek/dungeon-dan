@@ -1,4 +1,8 @@
 export type RoomId = "canopy-gate" | "ember-bridge" | "monkey-step" | "sunken-vault" | "idol-hall";
+export type FloorLevel = "ground" | "basement";
+export type AnimationSetId = "dan" | "paul-crab" | "dave-goat" | "mark-wasp" | "golden-clam";
+export type ActorArchetypeId = "paul-crab" | "dave-goat" | "mark-wasp";
+export type RelicArchetypeId = "golden-clam";
 
 export interface PlatformDefinition {
   x: number;
@@ -14,18 +18,17 @@ export interface LadderDefinition {
   height: number;
 }
 
-export interface TreasureDefinition {
+export interface RelicInstanceDefinition {
   id: string;
+  archetypeId: RelicArchetypeId;
   x: number;
   y: number;
   label: string;
 }
 
-export type HazardType = "paul_crab" | "dave_goat" | "mark_wasp";
-
-export interface HazardDefinition {
+export interface ActorInstanceDefinition {
   id: string;
-  type: HazardType;
+  archetypeId: ActorArchetypeId;
   x: number;
   y: number;
   width: number;
@@ -38,13 +41,16 @@ export interface HazardDefinition {
   chargePauseMs?: number;
 }
 
+export type HazardDefinition = ActorInstanceDefinition;
+export type TreasureDefinition = RelicInstanceDefinition;
+
 export interface RoomDefinition {
   id: RoomId;
   title: string;
   platforms: PlatformDefinition[];
   ladders: LadderDefinition[];
-  hazards: HazardDefinition[];
-  treasures: TreasureDefinition[];
+  actors: ActorInstanceDefinition[];
+  relics: RelicInstanceDefinition[];
   exits: {
     left?: RoomId;
     right?: RoomId;
@@ -61,7 +67,7 @@ export interface RunState {
   lives: number;
   score: number;
   timeRemainingMs: number;
-  collectedTreasureIds: string[];
+  collectedRelicIds: string[];
   status: "title" | "playing" | "won" | "lost";
 }
 

@@ -13,14 +13,14 @@ describe("RunStateController", () => {
     expect(state.status).toBe("playing");
   });
 
-  it("collects treasure once and wins after all treasures are found", () => {
+  it("collects relics once and wins after all relics are found", () => {
     const controller = new RunStateController();
     const ids = ["jade-mask", "sun-disc", "amber-idol", "moon-gem", "sky-crown"];
 
-    ids.forEach((id) => controller.collectTreasure(id));
+    ids.forEach((id) => controller.collectRelic(id));
 
     const state = controller.snapshot;
-    expect(state.collectedTreasureIds).toHaveLength(ids.length);
+    expect(state.collectedRelicIds).toHaveLength(ids.length);
     expect(state.score).toBe(250 * ids.length);
     expect(state.status).toBe("won");
   });
@@ -48,20 +48,20 @@ describe("RunStateController", () => {
   it("moves between rooms without resetting collected state", () => {
     const controller = new RunStateController();
 
-    controller.collectTreasure("jade-mask");
+    controller.collectRelic("jade-mask");
     controller.moveToRoom("monkey-step");
 
     expect(controller.snapshot.currentRoomId).toBe("monkey-step");
-    expect(controller.snapshot.collectedTreasureIds).toEqual(["jade-mask"]);
+    expect(controller.snapshot.collectedRelicIds).toEqual(["jade-mask"]);
   });
 
-  it("ignores duplicate treasure pickups", () => {
+  it("ignores duplicate relic pickups", () => {
     const controller = new RunStateController();
 
-    controller.collectTreasure("jade-mask");
-    controller.collectTreasure("jade-mask");
+    controller.collectRelic("jade-mask");
+    controller.collectRelic("jade-mask");
 
-    expect(controller.snapshot.collectedTreasureIds).toEqual(["jade-mask"]);
+    expect(controller.snapshot.collectedRelicIds).toEqual(["jade-mask"]);
     expect(controller.snapshot.score).toBe(250);
   });
 });

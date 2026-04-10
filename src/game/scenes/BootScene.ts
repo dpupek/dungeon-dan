@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { PLAYER_ANIMATION_MANIFEST } from "../assets/manifest";
 import { GAME_CONFIG } from "../config";
 
 export class BootScene extends Phaser.Scene {
@@ -8,6 +9,14 @@ export class BootScene extends Phaser.Scene {
 
   preload(): void {
     this.load.image("title-box-art", `${import.meta.env.BASE_URL}images/title-box-art-refined.png`);
+    this.load.spritesheet(
+      PLAYER_ANIMATION_MANIFEST.textureKey,
+      `${import.meta.env.BASE_URL}images/dan-spritesheet.png`,
+      {
+        frameWidth: PLAYER_ANIMATION_MANIFEST.frameWidth,
+        frameHeight: PLAYER_ANIMATION_MANIFEST.frameHeight,
+      },
+    );
   }
 
   create(): void {
@@ -17,14 +26,42 @@ export class BootScene extends Phaser.Scene {
     this.createGlintTexture("glint-4", 4);
     this.createGlintTexture("glint-8", 8);
     this.createLadderTexture();
-    this.createPlayerTexture("player-stand", false);
-    this.createPlayerTexture("player-jump", true);
-    this.createTreasureTexture();
-    this.createPaulTexture();
-    this.createDaveTexture("dave-goat", false);
-    this.createDaveTexture("dave-goat-scream", true);
-    this.createMarkTexture();
+    this.createPlayerAnimations();
+    this.createRelicTexture("golden-clam-open", true);
+    this.createRelicTexture("golden-clam-closed", false);
+    this.createPaulTexture("paul-crab-a", false);
+    this.createPaulTexture("paul-crab-b", true);
+    this.createDaveTexture("dave-goat-a", false, false);
+    this.createDaveTexture("dave-goat-b", false, true);
+    this.createDaveTexture("dave-goat-scream", true, true);
+    this.createMarkTexture("mark-wasp-a", false);
+    this.createMarkTexture("mark-wasp-b", true);
     this.scene.start("title");
+  }
+
+  private createPlayerAnimations(): void {
+    [
+      PLAYER_ANIMATION_MANIFEST.idle,
+      PLAYER_ANIMATION_MANIFEST.walk,
+      PLAYER_ANIMATION_MANIFEST.jump,
+      PLAYER_ANIMATION_MANIFEST.fall,
+      PLAYER_ANIMATION_MANIFEST.climb,
+      PLAYER_ANIMATION_MANIFEST.hurt,
+    ].forEach((clip) => {
+      if (this.anims.exists(clip.animationKey)) {
+        return;
+      }
+
+      this.anims.create({
+        key: clip.animationKey,
+        frames: this.anims.generateFrameNumbers(PLAYER_ANIMATION_MANIFEST.textureKey, {
+          start: clip.startFrame,
+          end: clip.endFrame,
+        }),
+        frameRate: clip.frameRate,
+        repeat: clip.repeat,
+      });
+    });
   }
 
   private createWoodTexture(key: string, variant: number): void {
@@ -122,80 +159,6 @@ export class BootScene extends Phaser.Scene {
     graphics.destroy();
   }
 
-  private createPlayerTexture(key: string, jumping: boolean): void {
-    const graphics = this.make.graphics({ x: 0, y: 0 }, false);
-    const hair = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.playerHair).color;
-    const skin = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.playerSkin).color;
-    const vest = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.playerVest).color;
-    const shirt = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.playerShirt).color;
-    const feet = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.playerFeet).color;
-    const outline = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.shadow).color;
-    const eyeWhite = Phaser.Display.Color.HexStringToColor("#fff7e6").color;
-    const pupil = Phaser.Display.Color.HexStringToColor("#3b2418").color;
-    const mouth = Phaser.Display.Color.HexStringToColor("#b56576").color;
-
-    graphics.fillStyle(outline, 1);
-    graphics.fillRect(4, 1, 8, 4);
-    graphics.fillRect(3, 5, 10, 4);
-    graphics.fillRect(1, 9, 3, 5);
-    graphics.fillRect(12, 9, 3, 5);
-    graphics.fillRect(4, 9, 8, 5);
-    if (jumping) {
-      graphics.fillRect(2, 13, 3, 2);
-      graphics.fillRect(11, 13, 3, 2);
-    } else {
-      graphics.fillRect(5, 14, 2, 2);
-      graphics.fillRect(9, 14, 2, 2);
-    }
-
-    graphics.fillStyle(hair, 1);
-    graphics.fillRect(5, 1, 6, 2);
-    graphics.fillRect(4, 2, 8, 2);
-    graphics.fillRect(3, 4, 2, 2);
-    graphics.fillRect(11, 4, 2, 2);
-
-    graphics.fillStyle(skin, 1);
-    graphics.fillRect(5, 4, 6, 4);
-    graphics.fillRect(2, 9, 2, 5);
-    graphics.fillRect(12, 9, 2, 5);
-
-    graphics.fillStyle(eyeWhite, 1);
-    graphics.fillRect(6, 5, 1, 1);
-    graphics.fillRect(9, 5, 1, 1);
-
-    graphics.fillStyle(pupil, 1);
-    graphics.fillRect(6, 5, 1, 1);
-    graphics.fillRect(9, 5, 1, 1);
-    graphics.fillRect(7, 6, 1, 1);
-    graphics.fillRect(7, 7, 2, 1);
-
-    graphics.fillStyle(mouth, 1);
-    graphics.fillRect(7, 8, 2, 1);
-
-    graphics.fillStyle(shirt, 1);
-    graphics.fillRect(5, 9, 6, 2);
-    graphics.fillRect(4, 10, 8, 2);
-    graphics.fillRect(2, 10, 2, 3);
-    graphics.fillRect(12, 10, 2, 3);
-
-    graphics.fillStyle(vest, 1);
-    graphics.fillRect(4, 11, 3, 3);
-    graphics.fillRect(9, 11, 3, 3);
-    graphics.fillRect(6, 12, 4, 2);
-
-    graphics.fillStyle(feet, 1);
-    if (jumping) {
-      graphics.fillRect(2, 13, 3, 2);
-      graphics.fillRect(11, 13, 3, 2);
-    } else {
-      graphics.fillRect(5, 14, 2, 2);
-      graphics.fillRect(9, 14, 2, 2);
-    }
-
-    graphics.generateTexture(key, 16, 16);
-    graphics.destroy();
-  }
-
   private createLadderTexture(): void {
     const graphics = this.make.graphics({ x: 0, y: 0 }, false);
     const rail = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.ladder).color;
@@ -222,7 +185,7 @@ export class BootScene extends Phaser.Scene {
     graphics.destroy();
   }
 
-  private createTreasureTexture(): void {
+  private createRelicTexture(key: string, open: boolean): void {
     const graphics = this.make.graphics({ x: 0, y: 0 }, false);
     const shell = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.treasure).color;
     const shellHighlight = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.treasureAccent).color;
@@ -234,25 +197,25 @@ export class BootScene extends Phaser.Scene {
     graphics.fillRect(4, 11, 8, 2);
 
     graphics.fillStyle(shell, 1);
-    graphics.fillRect(4, 5, 8, 5);
-    graphics.fillRect(5, 10, 6, 2);
-    graphics.fillRect(6, 4, 4, 1);
+    graphics.fillRect(4, 5, 8, open ? 5 : 6);
+    graphics.fillRect(5, open ? 10 : 11, 6, 2);
+    graphics.fillRect(6, open ? 4 : 5, 4, 1);
 
     graphics.fillStyle(shellHighlight, 1);
     graphics.fillRect(5, 6, 6, 1);
-    graphics.fillRect(6, 8, 4, 1);
-    graphics.fillRect(5, 10, 1, 2);
-    graphics.fillRect(10, 10, 1, 2);
+    graphics.fillRect(6, open ? 8 : 9, 4, 1);
+    graphics.fillRect(5, open ? 10 : 11, 1, 2);
+    graphics.fillRect(10, open ? 10 : 11, 1, 2);
 
     graphics.fillStyle(eye, 1);
     graphics.fillRect(6, 7, 1, 1);
     graphics.fillRect(9, 7, 1, 1);
 
-    graphics.generateTexture("treasure", 16, 16);
+    graphics.generateTexture(key, 16, 16);
     graphics.destroy();
   }
 
-  private createPaulTexture(): void {
+  private createPaulTexture(key: string, stepping: boolean): void {
     const graphics = this.make.graphics({ x: 0, y: 0 }, false);
     const shell = Phaser.Display.Color.HexStringToColor("#7a1f1f").color;
     const claw = Phaser.Display.Color.HexStringToColor("#b23a48").color;
@@ -263,10 +226,10 @@ export class BootScene extends Phaser.Scene {
     graphics.fillRect(3, 5, 10, 7);
     graphics.fillRect(1, 3, 3, 4);
     graphics.fillRect(12, 3, 3, 4);
-    graphics.fillRect(2, 12, 2, 3);
+    graphics.fillRect(stepping ? 1 : 2, 12, 2, 3);
     graphics.fillRect(5, 12, 2, 3);
     graphics.fillRect(9, 12, 2, 3);
-    graphics.fillRect(12, 12, 2, 3);
+    graphics.fillRect(stepping ? 13 : 12, 12, 2, 3);
 
     graphics.fillStyle(shell, 1);
     graphics.fillRect(4, 5, 8, 6);
@@ -283,11 +246,11 @@ export class BootScene extends Phaser.Scene {
     graphics.fillRect(6, 3, 1, 2);
     graphics.fillRect(9, 3, 1, 2);
 
-    graphics.generateTexture("paul-crab", 16, 16);
+    graphics.generateTexture(key, 16, 16);
     graphics.destroy();
   }
 
-  private createDaveTexture(key: string, screaming: boolean): void {
+  private createDaveTexture(key: string, screaming: boolean, braced: boolean): void {
     const graphics = this.make.graphics({ x: 0, y: 0 }, false);
     const fur = Phaser.Display.Color.HexStringToColor("#1f1f1f").color;
     const horn = Phaser.Display.Color.HexStringToColor("#bcb8b1").color;
@@ -299,13 +262,13 @@ export class BootScene extends Phaser.Scene {
     graphics.fillStyle(shadow, 1);
     graphics.fillRect(2, 5, 11, 6);
     graphics.fillRect(10, 3, 4, 4);
-    graphics.fillRect(3, 11, 2, 3);
-    graphics.fillRect(10, 11, 2, 3);
+    graphics.fillRect(braced ? 2 : 3, 11, 2, 3);
+    graphics.fillRect(braced ? 11 : 10, 11, 2, 3);
 
     graphics.fillStyle(fur, 1);
     graphics.fillRect(3, 5, 9, 5);
     graphics.fillRect(10, 4, 3, 3);
-    graphics.fillRect(8, 3, 2, 2);
+    graphics.fillRect(braced ? 7 : 8, 3, 2, 2);
 
     graphics.fillStyle(horn, 1);
     graphics.fillRect(10, 2, 1, 2);
@@ -321,14 +284,14 @@ export class BootScene extends Phaser.Scene {
     }
 
     graphics.fillStyle(hoof, 1);
-    graphics.fillRect(3, 12, 2, 2);
-    graphics.fillRect(10, 12, 2, 2);
+    graphics.fillRect(braced ? 2 : 3, 12, 2, 2);
+    graphics.fillRect(braced ? 11 : 10, 12, 2, 2);
 
     graphics.generateTexture(key, 16, 16);
     graphics.destroy();
   }
 
-  private createMarkTexture(): void {
+  private createMarkTexture(key: string, wingsRaised: boolean): void {
     const graphics = this.make.graphics({ x: 0, y: 0 }, false);
     const wing = Phaser.Display.Color.HexStringToColor("#6c757d").color;
     const body = Phaser.Display.Color.HexStringToColor("#2b2d42").color;
@@ -337,10 +300,10 @@ export class BootScene extends Phaser.Scene {
     const stinger = Phaser.Display.Color.HexStringToColor("#8d99ae").color;
 
     graphics.fillStyle(wing, 0.9);
-    graphics.fillRect(2, 3, 5, 3);
-    graphics.fillRect(9, 3, 5, 3);
-    graphics.fillRect(3, 1, 4, 2);
-    graphics.fillRect(9, 1, 4, 2);
+    graphics.fillRect(2, wingsRaised ? 2 : 3, 5, 3);
+    graphics.fillRect(9, wingsRaised ? 2 : 3, 5, 3);
+    graphics.fillRect(3, wingsRaised ? 0 : 1, 4, 2);
+    graphics.fillRect(9, wingsRaised ? 0 : 1, 4, 2);
 
     graphics.fillStyle(body, 1);
     graphics.fillRect(6, 4, 4, 7);
@@ -359,7 +322,7 @@ export class BootScene extends Phaser.Scene {
     graphics.fillRect(7, 13, 1, 1);
     graphics.fillRect(8, 13, 1, 1);
 
-    graphics.generateTexture("mark-wasp", 16, 16);
+    graphics.generateTexture(key, 16, 16);
     graphics.destroy();
   }
 }

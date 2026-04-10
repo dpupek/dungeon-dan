@@ -12,13 +12,15 @@ This file documents the current asset boundary in Dan's Dungeon so docs and code
 - `glint-4`
 - `glint-8`
 - `ladder`
-- `player-stand`
-- `player-jump`
-- `treasure`
-- `paul-crab`
-- `dave-goat`
+- `golden-clam-open`
+- `golden-clam-closed`
+- `paul-crab-a`
+- `paul-crab-b`
+- `dave-goat-a`
+- `dave-goat-b`
 - `dave-goat-scream`
-- `mark-wasp`
+- `mark-wasp-a`
+- `mark-wasp-b`
 
 These are gameplay-facing textures used at runtime and should be treated as code-generated art.
 
@@ -28,12 +30,14 @@ The repository currently ships these committed title-art images under `public/im
 
 - `title-box-art.png`
 - `title-box-art-refined.png`
+- `dan-spritesheet.png`
 
 BootScene currently loads:
 
 - `title-box-art-refined.png` as the `title-box-art` key
+- `dan-spritesheet.png` as the `dan-spritesheet` player animation sheet
 
-This means the title screen uses a committed bitmap, not a generated runtime texture.
+This means the title screen uses a committed bitmap, and Dan now uses a committed spritesheet instead of BootScene-generated player frames.
 
 ## Source-of-truth rules
 
@@ -56,5 +60,5 @@ When updating title art:
 When updating gameplay art:
 
 1. Check the generated texture code in `BootScene.ts`.
-2. Check display sizing and collision assumptions in `GameScene.ts`.
+2. Check display sizing and collision assumptions in `src/game/runtime/`.
 3. Re-read `docs/debugging-checklist.md` if the change affects feel or alignment.

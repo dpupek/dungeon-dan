@@ -1,8 +1,16 @@
 import { GAME_CONFIG } from "../config";
+import { GAME_MOVEMENT_METRICS } from "../movementMetrics";
 import type { RoomDefinition, RoomId } from "../types";
 
 const floorY = GAME_CONFIG.world.floorY;
-const lowerRouteY = floorY + 108;
+const groundPlatformHeight = 28;
+const upperPlatformHeight = 24;
+const basementPlatformHeight = 20;
+const lowerRouteY =
+  floorY +
+  GAME_MOVEMENT_METRICS.minimumBasementSeparationPx -
+  groundPlatformHeight / 2 +
+  basementPlatformHeight / 2;
 const lowerRouteWidth = GAME_CONFIG.world.width;
 const lowerRouteX = GAME_CONFIG.world.width / 2;
 
@@ -19,16 +27,16 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
     id: "canopy-gate",
     title: "Canopy Gate",
     platforms: [
-      { x: 120, y: floorY, width: 240, height: 28 },
-      { x: 530, y: floorY, width: 520, height: 28 },
-      { x: 740, y: 340, width: 180, height: 24 },
-      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: 20 },
+      { x: 110, y: floorY, width: 220, height: groundPlatformHeight },
+      { x: 640, y: floorY, width: 640, height: groundPlatformHeight },
+      { x: 760, y: 340, width: 190, height: upperPlatformHeight },
+      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: basementPlatformHeight },
     ],
     ladders: [{ x: 740, y: 404, width: 28, height: 128 }],
-    hazards: [
+    actors: [
       {
         id: "paul-gate",
-        type: "paul_crab",
+        archetypeId: "paul-crab",
         x: 640,
         y: floorY - 14,
         width: 40,
@@ -38,7 +46,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
         speed: 120,
       },
     ],
-    treasures: [{ id: "jade-mask", x: 810, y: 298, label: "Jade Mask" }],
+    relics: [{ id: "jade-mask", archetypeId: "golden-clam", x: 810, y: 298, label: "Jade Mask" }],
     exits: { right: "ember-bridge" },
     spawn: {
       default: { x: 120, y: floorY - 42 },
@@ -50,17 +58,17 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
     id: "ember-bridge",
     title: "Ember Bridge",
     platforms: [
-      { x: 140, y: floorY, width: 280, height: 28 },
-      { x: 520, y: floorY, width: 220, height: 28 },
-      { x: 840, y: floorY, width: 200, height: 28 },
-      { x: 470, y: 320, width: 160, height: 24 },
-      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: 20 },
+      { x: 120, y: floorY, width: 240, height: groundPlatformHeight },
+      { x: 450, y: floorY, width: 220, height: groundPlatformHeight },
+      { x: 830, y: floorY, width: 260, height: groundPlatformHeight },
+      { x: 470, y: 320, width: 160, height: upperPlatformHeight },
+      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: basementPlatformHeight },
     ],
     ladders: [{ x: 470, y: 394, width: 28, height: 148 }],
-    hazards: [
+    actors: [
       {
         id: "dave-ember",
-        type: "dave_goat",
+        archetypeId: "dave-goat",
         x: 470,
         y: floorY - 16,
         width: 42,
@@ -72,7 +80,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       },
       {
         id: "paul-bridge",
-        type: "paul_crab",
+        archetypeId: "paul-crab",
         x: 510,
         y: 304,
         width: 40,
@@ -82,7 +90,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
         speed: 115,
       },
     ],
-    treasures: [{ id: "sun-disc", x: 560, y: 278, label: "Sun Disc" }],
+    relics: [{ id: "sun-disc", archetypeId: "golden-clam", x: 560, y: 278, label: "Sun Disc" }],
     exits: { left: "canopy-gate", right: "monkey-step" },
     spawn: {
       default: { x: 140, y: floorY - 42 },
@@ -94,20 +102,20 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
     id: "monkey-step",
     title: "Monkey Step",
     platforms: [
-      { x: 120, y: floorY, width: 200, height: 28 },
-      { x: 500, y: floorY, width: 320, height: 28 },
-      { x: 270, y: 360, width: 180, height: 24 },
-      { x: 690, y: 280, width: 170, height: 24 },
-      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: 20 },
+      { x: 110, y: floorY, width: 220, height: groundPlatformHeight },
+      { x: 642, y: floorY, width: 636, height: groundPlatformHeight },
+      { x: 270, y: 340, width: 180, height: upperPlatformHeight },
+      { x: 690, y: 280, width: 170, height: upperPlatformHeight },
+      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: basementPlatformHeight },
     ],
     ladders: [
       { x: 270, y: 404, width: 28, height: 120 },
       { x: 690, y: 322, width: 28, height: 122 },
     ],
-    hazards: [
+    actors: [
       {
         id: "dave-monkey",
-        type: "dave_goat",
+        archetypeId: "dave-goat",
         x: 580,
         y: floorY - 14,
         width: 42,
@@ -119,7 +127,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       },
       {
         id: "mark-upper",
-        type: "mark_wasp",
+        archetypeId: "mark-wasp",
         x: 290,
         y: 344,
         width: 38,
@@ -131,7 +139,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
         swoopRate: 2.8,
       },
     ],
-    treasures: [{ id: "amber-idol", x: 760, y: 238, label: "Amber Idol" }],
+    relics: [{ id: "amber-idol", archetypeId: "golden-clam", x: 760, y: 238, label: "Amber Idol" }],
     exits: { left: "ember-bridge", right: "sunken-vault" },
     spawn: {
       default: { x: 120, y: floorY - 42 },
@@ -143,21 +151,21 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
     id: "sunken-vault",
     title: "Sunken Vault",
     platforms: [
-      { x: 120, y: floorY, width: 200, height: 28 },
-      { x: 460, y: floorY, width: 180, height: 28 },
-      { x: 820, y: floorY, width: 220, height: 28 },
-      { x: 310, y: 330, width: 160, height: 24 },
-      { x: 640, y: 250, width: 180, height: 24 },
-      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: 20 },
+      { x: 110, y: floorY, width: 220, height: groundPlatformHeight },
+      { x: 450, y: floorY, width: 252, height: groundPlatformHeight },
+      { x: 820, y: floorY, width: 280, height: groundPlatformHeight },
+      { x: 310, y: 330, width: 160, height: upperPlatformHeight },
+      { x: 640, y: 250, width: 180, height: upperPlatformHeight },
+      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: basementPlatformHeight },
     ],
     ladders: [
       { x: 310, y: 424, width: 28, height: 206 },
       { x: 640, y: 292, width: 28, height: 124 },
     ],
-    hazards: [
+    actors: [
       {
         id: "mark-vault",
-        type: "mark_wasp",
+        archetypeId: "mark-wasp",
         x: 500,
         y: floorY - 16,
         width: 38,
@@ -170,7 +178,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       },
       {
         id: "paul-vault",
-        type: "paul_crab",
+        archetypeId: "paul-crab",
         x: 720,
         y: 234,
         width: 40,
@@ -180,7 +188,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
         speed: 120,
       },
     ],
-    treasures: [{ id: "moon-gem", x: 720, y: 208, label: "Moon Gem" }],
+    relics: [{ id: "moon-gem", archetypeId: "golden-clam", x: 720, y: 208, label: "Moon Gem" }],
     exits: { left: "monkey-step", right: "idol-hall" },
     spawn: {
       default: { x: 120, y: floorY - 42 },
@@ -192,20 +200,20 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
     id: "idol-hall",
     title: "Idol Hall",
     platforms: [
-      { x: 120, y: floorY, width: 240, height: 28 },
-      { x: 530, y: floorY, width: 520, height: 28 },
-      { x: 510, y: 330, width: 180, height: 24 },
-      { x: 820, y: 250, width: 160, height: 24 },
-      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: 20 },
+      { x: 110, y: floorY, width: 220, height: groundPlatformHeight },
+      { x: 640, y: floorY, width: 640, height: groundPlatformHeight },
+      { x: 510, y: 330, width: 180, height: upperPlatformHeight },
+      { x: 820, y: 250, width: 160, height: upperPlatformHeight },
+      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: basementPlatformHeight },
     ],
     ladders: [
       { x: 510, y: 394, width: 28, height: 146 },
       { x: 820, y: 292, width: 28, height: 124 },
     ],
-    hazards: [
+    actors: [
       {
         id: "dave-idol",
-        type: "dave_goat",
+        archetypeId: "dave-goat",
         x: 620,
         y: floorY - 14,
         width: 42,
@@ -217,7 +225,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       },
       {
         id: "mark-idol",
-        type: "mark_wasp",
+        archetypeId: "mark-wasp",
         x: 540,
         y: 314,
         width: 38,
@@ -229,7 +237,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
         swoopRate: 3.2,
       },
     ],
-    treasures: [{ id: "sky-crown", x: 860, y: 208, label: "Sky Crown" }],
+    relics: [{ id: "sky-crown", archetypeId: "golden-clam", x: 860, y: 208, label: "Sky Crown" }],
     exits: { left: "sunken-vault" },
     spawn: {
       default: { x: 120, y: floorY - 42 },

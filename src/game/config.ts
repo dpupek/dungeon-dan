@@ -15,7 +15,7 @@ export interface GameConfig {
   run: {
     lives: number;
     timerSeconds: number;
-    treasureScore: number;
+    relicScore: number;
   };
   player: {
     width: number;
@@ -41,7 +41,7 @@ export const GAME_CONFIG: GameConfig = {
   run: {
     lives: 3,
     timerSeconds: 140,
-    treasureScore: 250,
+    relicScore: 250,
   },
   player: {
     width: 24,
