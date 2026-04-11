@@ -77,6 +77,8 @@ You can also point the script at a custom prompt file:
 - `CONTRIBUTING.md`
 - `docs/issue-6-basement-recovery.md`
 - `docs/repository-bootstrap.md`
+- `docs/game-roadmap.md`
+- `docs/conventions.md`
 - `docs/asset-inventory.md`
 - `docs/gameplay-architecture.md`
 - `docs/actor-runtime-refactor/workflows.md`

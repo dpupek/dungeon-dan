@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { PLAYER_ANIMATION_MANIFEST } from "../../assets/manifest";
 import { GAME_CONFIG } from "../../config";
 import type { FloorLevel, LadderDefinition, PlatformDefinition } from "../../types";
+import { canUseGroundJump, tickJumpWindowState } from "./jumpWindowState";
 import { resolvePlayerAnimationState, type PlayerAnimationState } from "./playerAnimation";
 
 export interface PlayerIntent {
@@ -19,6 +20,9 @@ export interface PlayerEnvironment {
 
 export interface PlayerStepResult {
   jumped: boolean;
+  landed: boolean;
+  hardLanded: boolean;
+  bumpedCeiling: boolean;
 }
 
 export class PlayerActor {
@@ -31,6 +35,9 @@ export class PlayerActor {
   private activeLadder: LadderDefinition | null = null;
   private animationState: PlayerAnimationState = "idle";
   private isHurt = false;
+  private coyoteTimerMs = 0;
+  private jumpBufferTimerMs = 0;
+  private wasGroundedLastFrame = false;
 
   constructor(scene: Phaser.Scene) {
     this.sprite = scene.add.sprite(0, 0, PLAYER_ANIMATION_MANIFEST.textureKey, PLAYER_ANIMATION_MANIFEST.idle.startFrame);
@@ -49,15 +56,39 @@ export class PlayerActor {
     this.facing = 1;
     this.isHurt = false;
     this.animationState = "idle";
+    this.coyoteTimerMs = 0;
+    this.jumpBufferTimerMs = 0;
+    this.wasGroundedLastFrame = false;
     this.syncAnimation();
   }
 
   update(dtSeconds: number, intent: PlayerIntent, environment: PlayerEnvironment): PlayerStepResult {
+    const dtMs = dtSeconds * 1000;
     this.activeLadder = environment.findActiveLadder(this.getBounds());
     const hasSupport = environment.findSupportingPlatform(this.sprite.x, this.sprite.y) !== null;
+    if (!this.isClimbing && hasSupport && this.vy >= 0) {
+      this.isGrounded = true;
+    }
     const wantsToStepOffLadder =
       this.isClimbing && hasSupport && intent.moveX !== 0 && intent.moveY === 0;
     let jumped = false;
+    let landed = false;
+    let hardLanded = false;
+    let bumpedCeiling = false;
+
+    const jumpWindows = tickJumpWindowState(
+      {
+        coyoteTimerMs: this.coyoteTimerMs,
+        jumpBufferTimerMs: this.jumpBufferTimerMs,
+      },
+      {
+        dtMs,
+        jumpPressed: intent.jumpPressed,
+        isGrounded: this.isGrounded,
+      },
+    );
+    this.coyoteTimerMs = jumpWindows.coyoteTimerMs;
+    this.jumpBufferTimerMs = jumpWindows.jumpBufferTimerMs;
 
     if (wantsToStepOffLadder) {
       this.isClimbing = false;
@@ -90,9 +121,9 @@ export class PlayerActor {
         this.vx = 0;
       }
 
-      if (intent.jumpPressed && this.isGrounded) {
-        this.vy = GAME_CONFIG.physics.jumpVelocity;
-        this.isGrounded = false;
+      if (canUseGroundJump(jumpWindows, this.isGrounded) && this.jumpBufferTimerMs > 0) {
+        this.performGroundJump();
+        this.jumpBufferTimerMs = 0;
         jumped = true;
       }
 
@@ -100,9 +131,19 @@ export class PlayerActor {
       const previousHeadY = this.sprite.y - GAME_CONFIG.player.height / 2;
       this.vy += GAME_CONFIG.physics.gravityY * dtSeconds;
       this.sprite.y += this.vy * dtSeconds;
+      const downwardSpeedBeforeLanding = this.vy;
 
-      this.resolveCeilingCollision(previousHeadY, environment);
-      this.resolvePlatformLanding(environment);
+      bumpedCeiling = this.resolveCeilingCollision(previousHeadY, environment);
+      landed = this.resolvePlatformLanding(environment);
+      hardLanded = landed && downwardSpeedBeforeLanding >= GAME_CONFIG.player.hardLandingSpeedPxPerSec;
+
+      if (landed && this.jumpBufferTimerMs > 0) {
+        this.performGroundJump();
+        this.jumpBufferTimerMs = 0;
+        landed = false;
+        hardLanded = false;
+        jumped = true;
+      }
     }
 
     if (intent.jumpPressed && this.isClimbing) {
@@ -110,39 +151,50 @@ export class PlayerActor {
       this.vy = GAME_CONFIG.physics.jumpVelocity * 0.8;
       this.isGrounded = false;
       jumped = true;
+      this.jumpBufferTimerMs = 0;
     }
 
+    this.wasGroundedLastFrame = this.isGrounded;
     this.syncAnimation();
-    return { jumped };
+    return { jumped, landed, hardLanded, bumpedCeiling };
   }
 
-  private resolveCeilingCollision(previousHeadY: number, environment: PlayerEnvironment): void {
+  private performGroundJump(): void {
+    this.vy = GAME_CONFIG.physics.jumpVelocity;
+    this.isGrounded = false;
+    this.coyoteTimerMs = 0;
+  }
+
+  private resolveCeilingCollision(previousHeadY: number, environment: PlayerEnvironment): boolean {
     if (this.vy >= 0) {
-      return;
+      return false;
     }
 
     const currentHeadY = this.sprite.y - GAME_CONFIG.player.height / 2;
     const ceiling = environment.findBlockingCeiling(this.sprite.x, previousHeadY, currentHeadY);
     if (!ceiling) {
-      return;
+      return false;
     }
 
     const ceilingBottom = ceiling.y + ceiling.height / 2;
     this.sprite.y = ceilingBottom + GAME_CONFIG.player.height / 2;
     this.vy = 0;
+    return true;
   }
 
-  private resolvePlatformLanding(environment: PlayerEnvironment): void {
+  private resolvePlatformLanding(environment: PlayerEnvironment): boolean {
     const support = environment.findSupportingPlatform(this.sprite.x, this.sprite.y);
     if (!support || this.vy < 0) {
       this.isGrounded = false;
-      return;
+      return false;
     }
 
+    const landed = !this.wasGroundedLastFrame;
     const platformTop = support.y - support.height / 2;
     this.sprite.y = platformTop - GAME_CONFIG.player.height / 2;
     this.vy = 0;
     this.isGrounded = true;
+    return landed;
   }
 
   private syncAnimation(): void {

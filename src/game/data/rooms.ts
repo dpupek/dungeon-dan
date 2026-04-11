@@ -26,6 +26,13 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
   "canopy-gate": {
     id: "canopy-gate",
     title: "Canopy Gate",
+    backdrop: {
+      farColor: "#12314d",
+      midColor: "#2b5d4f",
+      accentColor: "#3f7a62",
+      fogColor: "#86c5a3",
+      silhouette: "canopy",
+    },
     platforms: [
       { x: 110, y: floorY, width: 220, height: groundPlatformHeight },
       { x: 640, y: floorY, width: 640, height: groundPlatformHeight },
@@ -37,12 +44,12 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       {
         id: "paul-gate",
         archetypeId: "paul-crab",
-        x: 640,
+        x: 590,
         y: floorY - 14,
         width: 40,
         height: 24,
-        minX: 560,
-        maxX: 860,
+        minX: 470,
+        maxX: 690,
         speed: 120,
       },
     ],
@@ -57,6 +64,13 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
   "ember-bridge": {
     id: "ember-bridge",
     title: "Ember Bridge",
+    backdrop: {
+      farColor: "#1a223f",
+      midColor: "#5a3b2c",
+      accentColor: "#8a5a36",
+      fogColor: "#d49c63",
+      silhouette: "bridge",
+    },
     platforms: [
       { x: 120, y: floorY, width: 240, height: groundPlatformHeight },
       { x: 450, y: floorY, width: 220, height: groundPlatformHeight },
@@ -69,12 +83,12 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       {
         id: "dave-ember",
         archetypeId: "dave-goat",
-        x: 470,
+        x: 830,
         y: floorY - 16,
         width: 42,
         height: 26,
-        minX: 390,
-        maxX: 610,
+        minX: 760,
+        maxX: 900,
         speed: 92,
         chargePauseMs: 900,
       },
@@ -101,6 +115,13 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
   "monkey-step": {
     id: "monkey-step",
     title: "Monkey Step",
+    backdrop: {
+      farColor: "#10263e",
+      midColor: "#3b5f51",
+      accentColor: "#587b63",
+      fogColor: "#9bc19c",
+      silhouette: "canopy",
+    },
     platforms: [
       { x: 110, y: floorY, width: 220, height: groundPlatformHeight },
       { x: 642, y: floorY, width: 636, height: groundPlatformHeight },
@@ -116,12 +137,12 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       {
         id: "dave-monkey",
         archetypeId: "dave-goat",
-        x: 580,
+        x: 720,
         y: floorY - 14,
         width: 42,
         height: 26,
-        minX: 510,
-        maxX: 760,
+        minX: 610,
+        maxX: 860,
         speed: 90,
         chargePauseMs: 1100,
       },
@@ -150,6 +171,13 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
   "sunken-vault": {
     id: "sunken-vault",
     title: "Sunken Vault",
+    backdrop: {
+      farColor: "#162034",
+      midColor: "#3c4958",
+      accentColor: "#6d7d8a",
+      fogColor: "#94a4b0",
+      silhouette: "ruins",
+    },
     platforms: [
       { x: 110, y: floorY, width: 220, height: groundPlatformHeight },
       { x: 450, y: floorY, width: 252, height: groundPlatformHeight },
@@ -166,12 +194,12 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       {
         id: "mark-vault",
         archetypeId: "mark-wasp",
-        x: 500,
+        x: 440,
         y: floorY - 16,
         width: 38,
         height: 24,
-        minX: 430,
-        maxX: 560,
+        minX: 360,
+        maxX: 520,
         speed: 92,
         swoopDepth: 22,
         swoopRate: 2.4,
@@ -199,6 +227,13 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
   "idol-hall": {
     id: "idol-hall",
     title: "Idol Hall",
+    backdrop: {
+      farColor: "#211a33",
+      midColor: "#624267",
+      accentColor: "#8d6a93",
+      fogColor: "#bba2c4",
+      silhouette: "idol",
+    },
     platforms: [
       { x: 110, y: floorY, width: 220, height: groundPlatformHeight },
       { x: 640, y: floorY, width: 640, height: groundPlatformHeight },
@@ -214,12 +249,12 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       {
         id: "dave-idol",
         archetypeId: "dave-goat",
-        x: 620,
+        x: 700,
         y: floorY - 14,
         width: 42,
         height: 26,
-        minX: 540,
-        maxX: 850,
+        minX: 600,
+        maxX: 860,
         speed: 96,
         chargePauseMs: 850,
       },

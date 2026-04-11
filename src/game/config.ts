@@ -20,6 +20,9 @@ export interface GameConfig {
   player: {
     width: number;
     height: number;
+    coyoteTimeMs: number;
+    jumpBufferMs: number;
+    hardLandingSpeedPxPerSec: number;
   };
   palette: Record<string, string>;
 }
@@ -46,6 +49,9 @@ export const GAME_CONFIG: GameConfig = {
   player: {
     width: 24,
     height: 40,
+    coyoteTimeMs: 90,
+    jumpBufferMs: 120,
+    hardLandingSpeedPxPerSec: 420,
   },
   palette: {
     sky: "#15304c",

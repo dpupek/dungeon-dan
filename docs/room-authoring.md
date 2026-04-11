@@ -23,6 +23,9 @@ Current baseline:
 - comfortable authored gap: `104px`
 - hard authored gap: `136px`
 - minimum basement top-to-ground-floor top separation: `112px`
+- coyote time: `90ms`
+- jump buffer: `120ms`
+- hard landing threshold: `420px/s`
 
 Use these rules:
 
@@ -30,6 +33,17 @@ Use these rules:
 - Treat platform-distance tuning as a vertical-separation rule for basement vs ground floor. The basement top should stay more than one full Dan jump below the ground-floor top.
 - If an upper platform is intended to be jumpable from the ground floor, keep its top within the reachable band of the current jump.
 - If an upper platform is intentionally low for challenge, its underside should interrupt a full jump so Dan bumps his head instead of passing through it.
+
+## Backdrop readability
+
+Each room now owns a simple authored backdrop theme in room data.
+
+Use these rules:
+
+- Background layers should help rooms feel distinct without competing with platforms, ladders, monsters, relics, or the HUD.
+- Keep far and mid layers lower contrast than gameplay geometry.
+- Treat the HUD strip as part of readability, not as an afterthought layered over any possible background.
+- If a room becomes harder to read after a backdrop change, fix the backdrop before increasing foreground brightness everywhere.
 
 ### Basement recovery routes
 
@@ -70,6 +84,8 @@ At room load, `RoomRuntime` resolves the platform that supports the actor and cl
 - Place `paul-crab` and `dave-goat` so their bottoms are near the platform top.
 - Keep their lane centered on the platform they should patrol.
 - Do not hand-tune lanes right up to platform edges unless the danger is part of the design.
+- Keep ground monsters at least `48px` away from common jump takeoff and landing edges on required jumps.
+- Do not place ground monsters directly inside the clean approach to a ladder.
 
 ### Flying monsters
 
@@ -77,6 +93,7 @@ At room load, `RoomRuntime` resolves the platform that supports the actor and cl
 - `swoopDepth` controls vertical amplitude.
 - `swoopRate` controls vertical tempo.
 - Horizontal motion still uses a platform-derived safe lane, so keep the wasp visually associated with one platform span.
+- Avoid hovering a flying monster directly over the safest landing spot of a required jump unless the room is explicitly meant to be high pressure.
 
 ## Spawn points
 

@@ -18,6 +18,16 @@ export interface LadderDefinition {
   height: number;
 }
 
+export type BackdropSilhouetteId = "canopy" | "bridge" | "ruins" | "idol";
+
+export interface RoomBackdropDefinition {
+  farColor: string;
+  midColor: string;
+  accentColor: string;
+  fogColor: string;
+  silhouette: BackdropSilhouetteId;
+}
+
 export interface RelicInstanceDefinition {
   id: string;
   archetypeId: RelicArchetypeId;
@@ -47,6 +57,7 @@ export type TreasureDefinition = RelicInstanceDefinition;
 export interface RoomDefinition {
   id: RoomId;
   title: string;
+  backdrop: RoomBackdropDefinition;
   platforms: PlatformDefinition[];
   ladders: LadderDefinition[];
   actors: ActorInstanceDefinition[];

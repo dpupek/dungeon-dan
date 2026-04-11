@@ -19,18 +19,42 @@ interface DeveloperConsoleContext {
 }
 
 export class DeveloperConsoleController {
+  private static readonly PANEL_WIDTH = 660;
+  private static readonly PANEL_HEIGHT = 338;
+  private static readonly INFO_PANEL_WIDTH = 592;
+  private static readonly INFO_PANEL_HEIGHT = 162;
+  private static readonly CONTROLS_PANEL_WIDTH = 592;
+  private static readonly CONTROLS_PANEL_HEIGHT = 98;
+  private static readonly INFO_PANEL_LEFT =
+    GAME_CONFIG.world.width / 2 - DeveloperConsoleController.INFO_PANEL_WIDTH / 2;
+  private static readonly INFO_PANEL_TOP = 230 - DeveloperConsoleController.INFO_PANEL_HEIGHT / 2;
+  private static readonly CONTROLS_PANEL_LEFT =
+    GAME_CONFIG.world.width / 2 - DeveloperConsoleController.CONTROLS_PANEL_WIDTH / 2;
+  private static readonly CONTROLS_PANEL_TOP = 362 - DeveloperConsoleController.CONTROLS_PANEL_HEIGHT / 2;
+  private static readonly PANEL_PADDING_X = 18;
+  private static readonly PANEL_PADDING_Y = 14;
+
   private readonly panel: Phaser.GameObjects.Rectangle;
-  private readonly text: Phaser.GameObjects.Text;
+  private readonly infoPanel: Phaser.GameObjects.Rectangle;
+  private readonly controlsPanel: Phaser.GameObjects.Rectangle;
+  private readonly infoText: Phaser.GameObjects.Text;
+  private readonly controlsText: Phaser.GameObjects.Text;
+  private readonly scrollHintText: Phaser.GameObjects.Text;
+  private readonly scene: Phaser.Scene;
   private isOpen = false;
   private selectedRoomIndex = 0;
   private selectedFloor: FloorLevel = "ground";
+  private infoScrollIndex = 0;
+  private readonly visibleInfoLines = 7;
+  private lastContext: DeveloperConsoleContext | null = null;
 
   constructor(scene: Phaser.Scene) {
+    this.scene = scene;
     this.panel = scene.add.rectangle(
       GAME_CONFIG.world.width / 2,
       GAME_CONFIG.world.height / 2,
-      620,
-      280,
+      DeveloperConsoleController.PANEL_WIDTH,
+      DeveloperConsoleController.PANEL_HEIGHT,
       0x0b132b,
       0.9,
     );
@@ -38,14 +62,74 @@ export class DeveloperConsoleController {
     this.panel.setDepth(50);
     this.panel.setVisible(false);
 
-    this.text = scene.add.text(180, 162, "", {
+    this.infoPanel = scene.add.rectangle(
+      GAME_CONFIG.world.width / 2,
+      230,
+      DeveloperConsoleController.INFO_PANEL_WIDTH,
+      DeveloperConsoleController.INFO_PANEL_HEIGHT,
+      0x102040,
+      0.7,
+    );
+    this.infoPanel.setStrokeStyle(1, 0xf4d35e, 0.35);
+    this.infoPanel.setDepth(51);
+    this.infoPanel.setVisible(false);
+
+    this.controlsPanel = scene.add.rectangle(
+      GAME_CONFIG.world.width / 2,
+      362,
+      DeveloperConsoleController.CONTROLS_PANEL_WIDTH,
+      DeveloperConsoleController.CONTROLS_PANEL_HEIGHT,
+      0x081629,
+      0.84,
+    );
+    this.controlsPanel.setStrokeStyle(1, 0xf4d35e, 0.35);
+    this.controlsPanel.setDepth(51);
+    this.controlsPanel.setVisible(false);
+
+    this.infoText = scene.add.text(
+      DeveloperConsoleController.INFO_PANEL_LEFT + DeveloperConsoleController.PANEL_PADDING_X,
+      DeveloperConsoleController.INFO_PANEL_TOP + DeveloperConsoleController.PANEL_PADDING_Y + 18,
+      "",
+      {
       fontFamily: "Courier New",
-      fontSize: "18px",
+      fontSize: "15px",
       color: "#fefae0",
-      lineSpacing: 8,
-    });
-    this.text.setDepth(51);
-    this.text.setVisible(false);
+      lineSpacing: 6,
+      },
+    );
+    this.infoText.setDepth(52);
+    this.infoText.setVisible(false);
+
+    this.controlsText = scene.add.text(
+      DeveloperConsoleController.CONTROLS_PANEL_LEFT + DeveloperConsoleController.PANEL_PADDING_X,
+      DeveloperConsoleController.CONTROLS_PANEL_TOP + DeveloperConsoleController.PANEL_PADDING_Y,
+      "",
+      {
+      fontFamily: "Courier New",
+      fontSize: "15px",
+      color: "#f4d35e",
+      lineSpacing: 5,
+      },
+    );
+    this.controlsText.setDepth(52);
+    this.controlsText.setVisible(false);
+
+    this.scrollHintText = scene.add.text(
+      DeveloperConsoleController.INFO_PANEL_LEFT + DeveloperConsoleController.INFO_PANEL_WIDTH - 170,
+      DeveloperConsoleController.INFO_PANEL_TOP + DeveloperConsoleController.PANEL_PADDING_Y,
+      "",
+      {
+      fontFamily: "Courier New",
+      fontSize: "12px",
+      color: "#b8c1ec",
+      align: "right",
+      fixedWidth: 152,
+      },
+    );
+    this.scrollHintText.setDepth(52);
+    this.scrollHintText.setVisible(false);
+
+    scene.input.on("wheel", this.handleWheel, this);
   }
 
   handleKey(event: KeyboardEvent, context: DeveloperConsoleContext): DeveloperConsoleCommand {
@@ -67,6 +151,24 @@ export class DeveloperConsoleController {
       case "BracketRight":
         event.preventDefault();
         this.selectedRoomIndex = (this.selectedRoomIndex + 1) % ROOM_ORDER.length;
+        break;
+      case "ArrowUp":
+      case "PageUp":
+        event.preventDefault();
+        this.scrollInfo(-1);
+        break;
+      case "ArrowDown":
+      case "PageDown":
+        event.preventDefault();
+        this.scrollInfo(1);
+        break;
+      case "Home":
+        event.preventDefault();
+        this.infoScrollIndex = 0;
+        break;
+      case "End":
+        event.preventDefault();
+        this.infoScrollIndex = Number.MAX_SAFE_INTEGER;
         break;
       case "KeyG":
         event.preventDefault();
@@ -99,6 +201,7 @@ export class DeveloperConsoleController {
   }
 
   refresh(context: DeveloperConsoleContext): void {
+    this.lastContext = context;
     if (!this.isOpen) {
       return;
     }
@@ -108,24 +211,37 @@ export class DeveloperConsoleController {
     const currentFloorLabel = context.currentFloor === "ground" ? "Ground Floor" : "Basement";
     const selectedFloorLabel = this.selectedFloor === "ground" ? "Ground Floor" : "Basement";
     const seconds = Math.ceil(context.runState.timeRemainingMs / 1000);
+    const infoLines = [
+      "Developer Console",
+      "",
+      `Current Room: ${context.currentRoomTitle} (${context.currentRoomId})`,
+      `Current Floor: ${currentFloorLabel}`,
+      `Lives: ${context.runState.lives}   Score: ${context.runState.score}`,
+      `Clams: ${context.runState.collectedRelicIds.length}/${context.totalRelics}   Time: ${seconds}s`,
+      "",
+      `Selected Room: ${selectedRoom.title} (${selectedRoom.id})`,
+      `Selected Spawn Floor: ${selectedFloorLabel}`,
+      "",
+      "This panel scrolls if the info grows.",
+      "Use Up/Down, PageUp/PageDown, or the mouse wheel.",
+    ];
+    const maxScrollIndex = Math.max(0, infoLines.length - this.visibleInfoLines);
+    this.infoScrollIndex = Math.min(maxScrollIndex, Math.max(0, this.infoScrollIndex));
+    const visibleLines = infoLines.slice(this.infoScrollIndex, this.infoScrollIndex + this.visibleInfoLines);
+    const hasOverflow = infoLines.length > this.visibleInfoLines;
+    const scrollLabel = hasOverflow
+      ? `Scroll ${this.infoScrollIndex + 1}-${Math.min(infoLines.length, this.infoScrollIndex + this.visibleInfoLines)} / ${infoLines.length}`
+      : "";
 
-    this.text.setText(
+    this.infoText.setText(visibleLines.join("\n"));
+    this.scrollHintText.setText(scrollLabel);
+    this.scrollHintText.setVisible(hasOverflow);
+    this.controlsText.setText(
       [
-        "Developer Console",
-        "",
-        `Current Room: ${context.currentRoomTitle} (${context.currentRoomId})`,
-        `Current Floor: ${currentFloorLabel}`,
-        `Lives: ${context.runState.lives}   Score: ${context.runState.score}`,
-        `Clams: ${context.runState.collectedRelicIds.length}/${context.totalRelics}   Time: ${seconds}s`,
-        "",
-        `Selected Room: ${selectedRoom.title} (${selectedRoom.id})`,
-        `Selected Spawn Floor: ${selectedFloorLabel}`,
-        "",
         "[ / ] cycle room   G ground floor   B basement",
         "L add life   Shift+L remove life",
         "T add 30s   Shift+T remove 30s",
-        "Enter jump to room   R restart room",
-        "` close console",
+        "Enter jump to room   R restart room   ` close console",
       ].join("\n"),
     );
   }
@@ -135,16 +251,51 @@ export class DeveloperConsoleController {
   }
 
   destroy(): void {
+    this.scene.input.off("wheel", this.handleWheel, this);
     this.panel.destroy();
-    this.text.destroy();
+    this.infoPanel.destroy();
+    this.controlsPanel.destroy();
+    this.infoText.destroy();
+    this.controlsText.destroy();
+    this.scrollHintText.destroy();
   }
 
   private toggle(context: DeveloperConsoleContext): void {
     this.isOpen = !this.isOpen;
     this.selectedRoomIndex = ROOM_ORDER.indexOf(context.currentRoomId);
     this.selectedFloor = context.currentFloor;
+    this.infoScrollIndex = 0;
     this.panel.setVisible(this.isOpen);
-    this.text.setVisible(this.isOpen);
+    this.infoPanel.setVisible(this.isOpen);
+    this.controlsPanel.setVisible(this.isOpen);
+    this.infoText.setVisible(this.isOpen);
+    this.controlsText.setVisible(this.isOpen);
+    this.scrollHintText.setVisible(this.isOpen);
     this.refresh(context);
+  }
+
+  private scrollInfo(delta: number): void {
+    this.infoScrollIndex = Math.max(0, this.infoScrollIndex + delta);
+  }
+
+  private handleWheel(
+    _pointer: Phaser.Input.Pointer,
+    _currentlyOver: Phaser.GameObjects.GameObject[],
+    _deltaX: number,
+    deltaY: number,
+  ): void {
+    if (!this.isOpen) {
+      return;
+    }
+
+    if (deltaY > 0) {
+      this.scrollInfo(1);
+    } else if (deltaY < 0) {
+      this.scrollInfo(-1);
+    }
+
+    if (this.lastContext) {
+      this.refresh(this.lastContext);
+    }
   }
 }

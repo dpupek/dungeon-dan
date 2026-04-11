@@ -38,6 +38,36 @@ Check:
 
 Bias toward a forgiving top-entry zone. Strict ladders feel broken fast.
 
+## Late jump near edge does not fire
+
+Check:
+
+- coyote-time handling in `src/game/runtime/actors/PlayerActor.ts`
+- jump window helpers in `src/game/runtime/actors/jumpWindowState.ts`
+- whether Dan was actually grounded in the frame before leaving the edge
+
+If late jumps feel inconsistent, inspect the ground-contact state first before changing jump strength.
+
+## Early jump before landing never comes out
+
+Check:
+
+- buffered-jump handling in `src/game/runtime/actors/PlayerActor.ts`
+- jump buffer timing in `src/game/config.ts`
+- whether landing is being detected on the expected platform
+
+Buffered jumps should fire once on landing. If they do nothing or double fire, inspect the buffer-consumption path.
+
+## HUD or room background hurts readability
+
+Check:
+
+- HUD panel contrast in `src/game/runtime/HudController.ts`
+- room-authored backdrop colors in `src/game/data/rooms.ts`
+- whether silhouette layers are stronger than the foreground platforms
+
+If the room looks attractive but the platforms or hazards are harder to read, treat that as a backdrop bug, not a player-skill problem.
+
 ## Monster walks off platform
 
 Check:

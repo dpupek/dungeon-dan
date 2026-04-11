@@ -8,7 +8,7 @@ import { HudController } from "../runtime/HudController";
 import { RoomRuntime } from "../runtime/RoomRuntime";
 import { SpawnResolver } from "../runtime/SpawnResolver";
 import { PlayerActor, type PlayerIntent } from "../runtime/actors/PlayerActor";
-import type { FloorLevel, RoomId, RunState, ScenePayload } from "../types";
+import type { FloorLevel, RoomBackdropDefinition, RoomDefinition, RoomId, RunState, ScenePayload } from "../types";
 
 export class GameScene extends Phaser.Scene {
   private session!: GameSessionBridge;
@@ -23,6 +23,7 @@ export class GameScene extends Phaser.Scene {
   private sfx!: RetroSfx;
   private isPaused = false;
   private isRespawning = false;
+  private backdropViews: Phaser.GameObjects.GameObject[] = [];
 
   constructor() {
     super("game");
@@ -34,7 +35,6 @@ export class GameScene extends Phaser.Scene {
     this.sfx = new RetroSfx(this);
     this.spawnResolver = new SpawnResolver();
 
-    this.drawBackdrop();
     this.hud = new HudController(this);
     this.developerConsole = new DeveloperConsoleController(this);
     this.roomRuntime = new RoomRuntime(this);
@@ -48,6 +48,7 @@ export class GameScene extends Phaser.Scene {
       this.hud.destroy();
       this.developerConsole.destroy();
       this.player.destroy();
+      this.clearBackdrop();
     });
   }
 
@@ -62,6 +63,9 @@ export class GameScene extends Phaser.Scene {
     const playerStep = this.player.update(dtSeconds, this.readPlayerIntent(), this.roomRuntime);
     if (playerStep.jumped) {
       this.sfx.jump();
+    }
+    if (playerStep.hardLanded) {
+      this.cameras.main.shake(60, 0.0022, true);
     }
 
     this.roomRuntime.update(dtSeconds);
@@ -78,15 +82,77 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private drawBackdrop(): void {
-    const { width, height } = this.scale;
-    this.add.rectangle(width / 2, height / 2, width, height, 0x15304c);
+  private drawBackdrop(room: RoomDefinition): void {
+    this.clearBackdrop();
 
-    for (let i = 0; i < 6; i += 1) {
-      this.add
-        .rectangle(120 + i * 160, 90 + (i % 2) * 16, 180, 90, 0x2d6a4f, 0.65)
-        .setAngle(i % 2 === 0 ? -5 : 5);
+    const { width, height } = this.scale;
+    const { farColor, midColor, accentColor, fogColor, silhouette } = room.backdrop;
+    const far = this.add.rectangle(width / 2, height / 2, width, height, Phaser.Display.Color.HexStringToColor(farColor).color);
+    far.setDepth(-20);
+    this.backdropViews.push(far);
+
+    for (let i = 0; i < 4; i += 1) {
+      const band = this.add.rectangle(
+        120 + i * 260,
+        120 + (i % 2) * 18,
+        260,
+        120,
+        Phaser.Display.Color.HexStringToColor(midColor).color,
+        0.55,
+      );
+      band.setAngle(i % 2 === 0 ? -6 : 5);
+      band.setDepth(-19);
+      this.backdropViews.push(band);
     }
+
+    const accent = Phaser.Display.Color.HexStringToColor(accentColor).color;
+    const silhouetteShapes = this.buildBackdropSilhouettes(silhouette, accent);
+    silhouetteShapes.forEach((shape) => {
+      shape.setDepth(-18);
+      this.backdropViews.push(shape);
+    });
+
+    const fog = this.add.rectangle(width / 2, height - 118, width, 180, Phaser.Display.Color.HexStringToColor(fogColor).color, 0.18);
+    fog.setDepth(-17);
+    this.backdropViews.push(fog);
+  }
+
+  private buildBackdropSilhouettes(
+    silhouette: RoomBackdropDefinition["silhouette"],
+    color: number,
+  ): Phaser.GameObjects.Shape[] {
+    switch (silhouette) {
+      case "bridge":
+        return [
+          this.add.rectangle(160, 190, 220, 46, color, 0.32).setAngle(-8),
+          this.add.rectangle(470, 170, 280, 58, color, 0.3).setAngle(5),
+          this.add.rectangle(790, 188, 240, 48, color, 0.28).setAngle(-6),
+        ];
+      case "ruins":
+        return [
+          this.add.rectangle(180, 228, 120, 160, color, 0.28),
+          this.add.rectangle(420, 204, 96, 210, color, 0.3),
+          this.add.rectangle(730, 218, 150, 180, color, 0.26),
+        ];
+      case "idol":
+        return [
+          this.add.circle(190, 214, 86, color, 0.14),
+          this.add.circle(720, 202, 104, color, 0.12),
+          this.add.rectangle(500, 180, 180, 90, color, 0.22).setAngle(-4),
+        ];
+      case "canopy":
+      default:
+        return [
+          this.add.ellipse(160, 160, 240, 120, color, 0.26).setAngle(-10),
+          this.add.ellipse(470, 146, 300, 126, color, 0.28).setAngle(6),
+          this.add.ellipse(790, 172, 260, 118, color, 0.24).setAngle(-8),
+        ];
+    }
+  }
+
+  private clearBackdrop(): void {
+    this.backdropViews.forEach((view) => view.destroy());
+    this.backdropViews = [];
   }
 
   private createInput(): void {
@@ -174,6 +240,7 @@ export class GameScene extends Phaser.Scene {
   ): void {
     this.runState = this.session.moveToRoom(roomId);
     const room = getRoomDefinition(roomId);
+    this.drawBackdrop(room);
     this.roomRuntime.load(room, this.runState.collectedRelicIds);
 
     const spawn = this.spawnResolver.resolveSpawnPoint(room, spawnKey, transitionY, forceFloor);
@@ -233,6 +300,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.isRespawning = true;
+    this.cameras.main.shake(150, 0.0055, true);
     if (cause === "dave-goat") {
       this.sfx.humanScream();
     } else {

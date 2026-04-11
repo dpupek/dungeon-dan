@@ -22,6 +22,15 @@ Dan's Dungeon keeps Phaser as the render shell, but gameplay responsibilities no
 - `SpawnResolver`: preserves ground-floor and basement spawn behavior across transitions.
 - `HudController` and `DeveloperConsoleController`: own overlay UI and debug input surfaces.
 
+## Overlay UI rule
+
+Dan's Dungeon keeps compact gameplay overlays inside Phaser runtime controllers, but this is a size-limited choice rather than a blanket UI strategy.
+
+- small, gameplay-adjacent overlays can stay in Phaser
+- text-heavy, scrollable, or sectioned menus should move toward a DOM-backed overlay before layout work starts dominating the implementation
+
+This project already hit that threshold with the developer console, so future growth in debug tools or settings screens should favor a richer DOM experience instead of more canvas-text layout patches.
+
 ## Player movement
 
 The player still does not rely on Phaser Arcade bodies for floor contact. Dan uses a custom actor that:
