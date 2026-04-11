@@ -19,6 +19,7 @@ export const ROOM_ORDER: RoomId[] = [
   "ember-bridge",
   "monkey-step",
   "sunken-vault",
+  "fossil-stair",
   "idol-hall",
 ];
 
@@ -217,11 +218,59 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       },
     ],
     relics: [{ id: "moon-gem", archetypeId: "golden-clam", x: 720, y: 208, label: "Moon Gem" }],
-    exits: { left: "monkey-step", right: "idol-hall" },
+    exits: { left: "monkey-step", right: "fossil-stair" },
     spawn: {
       default: { x: 120, y: floorY - 42 },
       fromLeft: { x: 120, y: floorY - 42 },
       fromRight: { x: 820, y: floorY - 42 },
+    },
+  },
+  "fossil-stair": {
+    id: "fossil-stair",
+    title: "Fossil Stair",
+    backdrop: {
+      farColor: "#181f31",
+      midColor: "#475262",
+      accentColor: "#748391",
+      fogColor: "#b7c1c7",
+      silhouette: "ruins",
+    },
+    platforms: [
+      { x: 150, y: floorY, width: 280, height: groundPlatformHeight },
+      { x: 470, y: floorY, width: 170, height: groundPlatformHeight },
+      { x: 815, y: floorY, width: 250, height: groundPlatformHeight },
+      { x: 330, y: 334, width: 150, height: upperPlatformHeight },
+      { x: 600, y: 314, width: 150, height: upperPlatformHeight },
+      { x: 490, y: 252, width: 160, height: upperPlatformHeight },
+      { x: 780, y: 196, width: 140, height: upperPlatformHeight },
+      { x: lowerRouteX, y: lowerRouteY, width: lowerRouteWidth, height: basementPlatformHeight },
+    ],
+    ladders: [
+      { x: 330, y: 366, width: 28, height: 116 },
+      { x: 600, y: 278, width: 28, height: 112 },
+      { x: 780, y: 300, width: 28, height: 228 },
+    ],
+    actors: [
+      {
+        id: "mark-fossil",
+        archetypeId: "mark-wasp",
+        x: 700,
+        y: 238,
+        width: 38,
+        height: 24,
+        minX: 640,
+        maxX: 840,
+        speed: 84,
+        swoopDepth: 22,
+        swoopRate: 2.6,
+      },
+    ],
+    relics: [{ id: "fossil-shell", archetypeId: "golden-clam", x: 800, y: 154, label: "Fossil Shell" }],
+    exits: { left: "sunken-vault", right: "idol-hall" },
+    spawn: {
+      default: { x: 140, y: floorY - 42 },
+      fromLeft: { x: 140, y: floorY - 42 },
+      fromRight: { x: 800, y: floorY - 42 },
     },
   },
   "idol-hall": {
@@ -273,7 +322,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
       },
     ],
     relics: [{ id: "sky-crown", archetypeId: "golden-clam", x: 860, y: 208, label: "Sky Crown" }],
-    exits: { left: "sunken-vault" },
+    exits: { left: "fossil-stair" },
     spawn: {
       default: { x: 120, y: floorY - 42 },
       fromLeft: { x: 120, y: floorY - 42 },

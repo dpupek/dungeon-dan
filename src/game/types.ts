@@ -1,4 +1,10 @@
-export type RoomId = "canopy-gate" | "ember-bridge" | "monkey-step" | "sunken-vault" | "idol-hall";
+export type RoomId =
+  | "canopy-gate"
+  | "ember-bridge"
+  | "monkey-step"
+  | "sunken-vault"
+  | "fossil-stair"
+  | "idol-hall";
 export type FloorLevel = "ground" | "basement";
 export type AnimationSetId = "dan" | "paul-crab" | "dave-goat" | "mark-wasp" | "golden-clam";
 export type ActorArchetypeId = "paul-crab" | "dave-goat" | "mark-wasp";

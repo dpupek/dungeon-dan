@@ -58,7 +58,7 @@ export class TitleScene extends Phaser.Scene {
       .text(
         width / 2,
         height - 80,
-        "Snatch the five golden clams, dodge Paul, Dave, and Mark,\nand escape the temple before time runs out.",
+        "Snatch the six golden clams, dodge Paul, Dave, and Mark,\nand escape the temple before time runs out.",
         {
           fontFamily: "Courier New",
           fontSize: "20px",

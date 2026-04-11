@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { GAME_CONFIG } from "../config";
+import { ROOM_ORDER, getRoomDefinition } from "../data/rooms";
 import type { EndScenePayload } from "../types";
 
 export class EndScene extends Phaser.Scene {
@@ -10,6 +11,10 @@ export class EndScene extends Phaser.Scene {
   create(data: EndScenePayload): void {
     const { width, height } = this.scale;
     const didWin = data.outcome === "won";
+    const totalRelicCount = ROOM_ORDER.reduce(
+      (count, roomId) => count + getRoomDefinition(roomId).relics.length,
+      0,
+    );
 
     this.add.rectangle(width / 2, height / 2, width, height, 0x0b132b);
     this.add
@@ -24,7 +29,7 @@ export class EndScene extends Phaser.Scene {
       .text(
         width / 2,
         250,
-        `Score ${data.runState.score}\nClams ${data.runState.collectedRelicIds.length}/5\nLives ${data.runState.lives}`,
+        `Score ${data.runState.score}\nClams ${data.runState.collectedRelicIds.length}/${totalRelicCount}\nLives ${data.runState.lives}`,
         {
           fontFamily: "Courier New",
           fontSize: "24px",

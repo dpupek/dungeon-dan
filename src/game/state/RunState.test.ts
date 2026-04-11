@@ -15,7 +15,7 @@ describe("RunStateController", () => {
 
   it("collects relics once and wins after all relics are found", () => {
     const controller = new RunStateController();
-    const ids = ["jade-mask", "sun-disc", "amber-idol", "moon-gem", "sky-crown"];
+    const ids = ["jade-mask", "sun-disc", "amber-idol", "moon-gem", "fossil-shell", "sky-crown"];
 
     ids.forEach((id) => controller.collectRelic(id));
 

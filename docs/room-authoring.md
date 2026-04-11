@@ -33,6 +33,7 @@ Use these rules:
 - Treat platform-distance tuning as a vertical-separation rule for basement vs ground floor. The basement top should stay more than one full Dan jump below the ground-floor top.
 - If an upper platform is intended to be jumpable from the ground floor, keep its top within the reachable band of the current jump.
 - If an upper platform is intentionally low for challenge, its underside should interrupt a full jump so Dan bumps his head instead of passing through it.
+- A varied platform-heights room should use layered traversable bands, readable ladder mounts, and short committed jumps instead of precision-only routing.
 
 ## Backdrop readability
 

@@ -2,7 +2,7 @@
 
 ![Dan's Dungeon title art](public/images/title-box-art-refined.png)
 
-Dan's Dungeon is a browser-based retro action platformer built with Phaser 3, TypeScript, and Vite. The current playable is a compact temple run with five connected rooms, relic collection, moving hazards, ladders, pits, score, lives, and a countdown timer.
+Dan's Dungeon is a browser-based retro action platformer built with Phaser 3, TypeScript, and Vite. The current playable is a compact temple run with six connected rooms, relic collection, moving hazards, ladders, pits, score, lives, and a countdown timer.
 
 ## Live game
 

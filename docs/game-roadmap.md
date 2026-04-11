@@ -1,6 +1,6 @@
 # Dan's Dungeon Roadmap
 
-This roadmap focuses on the next meaningful improvements to feel, content, readability, and replay value for the current five-room adventure.
+This roadmap focuses on the next meaningful improvements to feel, content, readability, and replay value for the current six-room adventure.
 
 ## Phase 1: Movement and Readability
 
@@ -13,14 +13,15 @@ This roadmap focuses on the next meaningful improvements to feel, content, reada
 ## Phase 2: Room Identity and Variety
 
 - [ ] Add 3 to 5 new rooms with stronger individual gimmicks.
-- [ ] Introduce one room built around layered vertical routing instead of mostly flat traversal.
+- [x] Introduce one room built around layered vertical routing instead of mostly flat traversal.
+- [x] Ship `Fossil Stair` as the sixth room to fulfill issue `#5` and the room concept from `#11`.
 - [ ] Introduce one trap-driven room with timed environmental hazards.
 - [ ] Introduce one room where the basement path is the safer route and the ground floor is higher risk.
 - [ ] Make each relic room feel distinct through layout, hazard rhythm, or treasure placement.
 
 ## Phase 3: Audio and Atmosphere
 
-- [ ] Add looping adventure music for active gameplay with persisted music-only volume controls.
+- [x] Add looping adventure music for active gameplay with persisted music-only volume controls.
 - [ ] Add room ambience or lightweight environmental sound layers.
 - [ ] Add richer relic pickup, damage, and room-transition sound cues.
 - [ ] Add background art per room that supports the foreground instead of competing with it.
@@ -58,19 +59,16 @@ If only a few items are tackled next, use this order:
 
 ## Current recommendation
 
-The next best slice is **audio and atmosphere**, starting with issue `#4`.
+The next best slice is **new room set content**, starting with the remaining authored room concepts after `Fossil Stair`.
 
 Why this is next:
 
-- movement readability and baseline room readability are now in place
-- music and ambience improve perceived polish across the entire game immediately
-- audio is orthogonal to the current room/runtime work, so it is less likely to destabilize traversal
+- movement readability, baseline room readability, music, and the first strongly vertical room are now in place
+- the game benefits most from adding more authored room identities before introducing another system-heavy feature
+- the remaining room concepts can build on the now-proven basement and ladder conventions
 
-For `#4`, the intended v1 shape is:
+The strongest candidates now are:
 
-- one looping adventure bed for gameplay
-- separate music-only volume controls
-- browser-persisted music volume and mute state
-- no full settings menu yet
-
-After `#4`, the next strongest gameplay-content item is issue `#5`, because the current room set still needs a more vertical platform-routing test case.
+- `#7` through `#16` for stronger room gimmicks
+- `#3` for richer per-room background art once the authored room set is more stable
+- a new monster behavior only after a few more room layouts prove where current hazards are repetitive
