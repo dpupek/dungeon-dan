@@ -32,6 +32,8 @@ Move a menu or panel to a richer DOM experience when any of these become true:
 
 For Dan's Dungeon, future developer tools, settings menus, and other text-heavy panels should prefer a DOM-backed overlay rather than continued Phaser text-layout work.
 
+The same rule applies to future rich audio/settings menus. Keyboard shortcuts and brief HUD feedback are fine in Phaser, but a multi-control audio/settings surface should move to a richer DOM experience.
+
 ## Room readability
 
 - Backgrounds should support gameplay readability, not compete with it.

@@ -34,6 +34,8 @@ Play the latest deployed build at:
 - `Space`: jump
 - `P`: pause
 - `R`: restart the run
+- `M`: mute or unmute music
+- `[` / `]`: lower or raise music volume
 
 ## Developer console
 
@@ -52,6 +54,7 @@ During gameplay, press `` ` `` to open the hidden developer console.
 - Dan uses a committed spritesheet, while most other gameplay sprites and textures are still generated in `src/game/scenes/BootScene.ts`.
 - The title splash is a static image asset loaded by BootScene from `public/images/title-box-art-refined.png`.
 - Sound effects are oscillator-based and do not rely on external audio assets.
+- Gameplay music is loaded from a committed audio asset under `public/audio/`.
 - Room content is data-driven through typed actor/relic room definitions in `src/game/data/rooms.ts`.
 
 ## Title art workflow
@@ -86,4 +89,5 @@ You can also point the script at a custom prompt file:
 - `docs/actor-runtime-refactor/roadmap.md`
 - `docs/room-authoring.md`
 - `docs/debugging-checklist.md`
+- `docs/music-workflow.md`
 - `docs/art-pipeline.md`

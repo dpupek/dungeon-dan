@@ -20,7 +20,7 @@ This roadmap focuses on the next meaningful improvements to feel, content, reada
 
 ## Phase 3: Audio and Atmosphere
 
-- [ ] Add looping adventure music for active gameplay.
+- [ ] Add looping adventure music for active gameplay with persisted music-only volume controls.
 - [ ] Add room ambience or lightweight environmental sound layers.
 - [ ] Add richer relic pickup, damage, and room-transition sound cues.
 - [ ] Add background art per room that supports the foreground instead of competing with it.
@@ -65,5 +65,12 @@ Why this is next:
 - movement readability and baseline room readability are now in place
 - music and ambience improve perceived polish across the entire game immediately
 - audio is orthogonal to the current room/runtime work, so it is less likely to destabilize traversal
+
+For `#4`, the intended v1 shape is:
+
+- one looping adventure bed for gameplay
+- separate music-only volume controls
+- browser-persisted music volume and mute state
+- no full settings menu yet
 
 After `#4`, the next strongest gameplay-content item is issue `#5`, because the current room set still needs a more vertical platform-routing test case.

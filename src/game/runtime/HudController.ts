@@ -44,7 +44,7 @@ export class HudController {
     roomTitle: string,
     runState: RunState,
     totalRelics: number,
-    uiState: { paused: boolean; developerConsoleOpen: boolean },
+    uiState: { paused: boolean; developerConsoleOpen: boolean; statusMessage?: string | null },
   ): void {
     const seconds = Math.ceil(runState.timeRemainingMs / 1000);
     this.roomLabel.setText(roomTitle);
@@ -53,6 +53,8 @@ export class HudController {
     );
     if (uiState.developerConsoleOpen) {
       this.statusLabel.setText("Dev Console Open");
+    } else if (uiState.statusMessage) {
+      this.statusLabel.setText(uiState.statusMessage);
     } else {
       this.statusLabel.setText(uiState.paused ? "Paused" : "P pause  R restart");
     }

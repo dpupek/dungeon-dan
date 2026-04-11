@@ -82,6 +82,11 @@ export interface RunState {
   status: "title" | "playing" | "won" | "lost";
 }
 
+export interface MusicSettings {
+  musicVolume: number;
+  musicMuted: boolean;
+}
+
 export interface ScenePayload {
   runState?: RunState;
 }

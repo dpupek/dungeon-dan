@@ -5,6 +5,7 @@ import { getRoomDefinition } from "../data/rooms";
 import { DeveloperConsoleController, type DeveloperConsoleCommand } from "../runtime/DeveloperConsoleController";
 import { GameSessionBridge } from "../runtime/GameSessionBridge";
 import { HudController } from "../runtime/HudController";
+import { MusicController } from "../runtime/MusicController";
 import { RoomRuntime } from "../runtime/RoomRuntime";
 import { SpawnResolver } from "../runtime/SpawnResolver";
 import { PlayerActor, type PlayerIntent } from "../runtime/actors/PlayerActor";
@@ -17,13 +18,19 @@ export class GameScene extends Phaser.Scene {
   private roomRuntime!: RoomRuntime;
   private spawnResolver!: SpawnResolver;
   private hud!: HudController;
+  private music!: MusicController;
   private developerConsole!: DeveloperConsoleController;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-  private keys!: Record<"left" | "right" | "up" | "down" | "jump" | "pause" | "restart", Phaser.Input.Keyboard.Key>;
+  private keys!: Record<
+    "left" | "right" | "up" | "down" | "jump" | "pause" | "restart" | "musicMute",
+    Phaser.Input.Keyboard.Key
+  >;
   private sfx!: RetroSfx;
   private isPaused = false;
   private isRespawning = false;
   private backdropViews: Phaser.GameObjects.GameObject[] = [];
+  private transientStatusText: string | null = null;
+  private transientStatusUntil = 0;
 
   constructor() {
     super("game");
@@ -33,6 +40,7 @@ export class GameScene extends Phaser.Scene {
     this.session = new GameSessionBridge(data.runState);
     this.runState = this.session.state;
     this.sfx = new RetroSfx(this);
+    this.music = new MusicController(this);
     this.spawnResolver = new SpawnResolver();
 
     this.hud = new HudController(this);
@@ -42,8 +50,10 @@ export class GameScene extends Phaser.Scene {
 
     this.createInput();
     this.loadRoom(this.runState.currentRoomId, "default");
+    void this.music.startGameplayLoop();
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.music.destroy();
       this.roomRuntime.destroy();
       this.hud.destroy();
       this.developerConsole.destroy();
@@ -165,6 +175,7 @@ export class GameScene extends Phaser.Scene {
       jump: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
       pause: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.P),
       restart: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.R),
+      musicMute: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.M),
     };
 
     this.keys.pause.on("down", () => {
@@ -173,6 +184,11 @@ export class GameScene extends Phaser.Scene {
       }
 
       this.isPaused = !this.isPaused;
+      if (this.isPaused) {
+        this.music.pauseGameplayLoop();
+      } else {
+        this.music.resumeGameplayLoop();
+      }
       this.refreshUi();
     });
 
@@ -193,6 +209,9 @@ export class GameScene extends Phaser.Scene {
         totalRelics: this.session.totalRelicCount,
       });
       this.executeDeveloperConsoleCommand(command);
+      if (!this.developerConsole.isConsoleOpen()) {
+        this.handleMusicKey(event);
+      }
       this.refreshUi();
     });
   }
@@ -261,6 +280,7 @@ export class GameScene extends Phaser.Scene {
 
     if (this.runState.status === "won") {
       this.sfx.win();
+      this.music.stopGameplayLoop();
       this.scene.start("end", { outcome: "won", runState: this.runState });
     }
   }
@@ -315,6 +335,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     if (this.runState.status === "lost") {
+      this.music.stopGameplayLoop();
       this.scene.start("end", { outcome: "lost", runState: this.runState });
       return;
     }
@@ -324,9 +345,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   private refreshUi(): void {
+    const now = this.time.now;
+    if (this.transientStatusUntil <= now) {
+      this.transientStatusText = null;
+    }
+
     this.hud.render(this.roomRuntime.getRoom().title, this.runState, this.session.totalRelicCount, {
       paused: this.isPaused,
       developerConsoleOpen: this.developerConsole.isConsoleOpen(),
+      statusMessage: this.transientStatusUntil > now ? this.transientStatusText : null,
     });
 
     this.developerConsole.refresh({
@@ -336,5 +363,29 @@ export class GameScene extends Phaser.Scene {
       runState: this.runState,
       totalRelics: this.session.totalRelicCount,
     });
+  }
+
+  private handleMusicKey(event: KeyboardEvent): void {
+    switch (event.code) {
+      case "KeyM":
+        event.preventDefault();
+        this.showTransientStatus(this.music.toggleMute());
+        return;
+      case "BracketLeft":
+        event.preventDefault();
+        this.showTransientStatus(this.music.adjustVolume(-GAME_CONFIG.audio.musicVolumeStep));
+        return;
+      case "BracketRight":
+        event.preventDefault();
+        this.showTransientStatus(this.music.adjustVolume(GAME_CONFIG.audio.musicVolumeStep));
+        return;
+      default:
+        return;
+    }
+  }
+
+  private showTransientStatus(text: string): void {
+    this.transientStatusText = text;
+    this.transientStatusUntil = this.time.now + GAME_CONFIG.audio.musicStatusMessageMs;
   }
 }

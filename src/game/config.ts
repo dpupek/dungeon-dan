@@ -24,6 +24,11 @@ export interface GameConfig {
     jumpBufferMs: number;
     hardLandingSpeedPxPerSec: number;
   };
+  audio: {
+    defaultMusicVolume: number;
+    musicVolumeStep: number;
+    musicStatusMessageMs: number;
+  };
   palette: Record<string, string>;
 }
 
@@ -52,6 +57,11 @@ export const GAME_CONFIG: GameConfig = {
     coyoteTimeMs: 90,
     jumpBufferMs: 120,
     hardLandingSpeedPxPerSec: 420,
+  },
+  audio: {
+    defaultMusicVolume: 0.22,
+    musicVolumeStep: 0.05,
+    musicStatusMessageMs: 1600,
   },
   palette: {
     sky: "#15304c",
