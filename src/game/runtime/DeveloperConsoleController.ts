@@ -217,7 +217,7 @@ export class DeveloperConsoleController {
       `Current Room: ${context.currentRoomTitle} (${context.currentRoomId})`,
       `Current Floor: ${currentFloorLabel}`,
       `Lives: ${context.runState.lives}   Score: ${context.runState.score}`,
-      `Clams: ${context.runState.collectedRelicIds.length}/${context.totalRelics}   Time: ${seconds}s`,
+      `Relics: ${context.runState.collectedRelicIds.length}/${context.totalRelics}   Time: ${seconds}s`,
       "",
       `Selected Room: ${selectedRoom.title} (${selectedRoom.id})`,
       `Selected Spawn Floor: ${selectedFloorLabel}`,

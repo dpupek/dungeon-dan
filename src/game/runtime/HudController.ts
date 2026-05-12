@@ -49,7 +49,7 @@ export class HudController {
     const seconds = Math.ceil(runState.timeRemainingMs / 1000);
     this.roomLabel.setText(roomTitle);
     this.hudLabel.setText(
-      `Score ${runState.score}   Lives ${runState.lives}   Clams ${runState.collectedRelicIds.length}/${totalRelics}   Time ${seconds}`,
+      `Score ${runState.score}   Lives ${runState.lives}   Relics ${runState.collectedRelicIds.length}/${totalRelics}   Time ${seconds}`,
     );
     if (uiState.developerConsoleOpen) {
       this.statusLabel.setText("Dev Console Open");

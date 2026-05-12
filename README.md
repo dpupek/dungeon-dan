@@ -1,8 +1,8 @@
-# Dan's Dungeon
+# Lost Relics of Namron
 
-![Dan's Dungeon title art](public/images/title-box-art-refined.png)
+![Lost Relics of Namron title art](public/images/title-box-art-refined.png)
 
-Dan's Dungeon is a browser-based retro action platformer built with Phaser 3, TypeScript, and Vite. The current playable is a compact temple run with six connected rooms, relic collection, moving hazards, ladders, pits, score, lives, and a countdown timer.
+Lost Relics of Namron is a browser-based retro action platformer built with Phaser 3, TypeScript, and Vite. The current playable sends the Seeker through six connected Namron memory halls to recover relics of the Sable Storm while dodging moving hazards, climbing ladders, managing score, lives, and a countdown timer.
 
 ## Live game
 
@@ -50,7 +50,7 @@ During gameplay, press `` ` `` to open the hidden developer console.
 
 ## Project notes
 
-- The browser title and public-facing name should remain `Dan's Dungeon`.
+- The browser title and public-facing name should remain `Lost Relics of Namron`.
 - Dan uses a committed spritesheet, while most other gameplay sprites and textures are still generated in `src/game/scenes/BootScene.ts`.
 - The title splash is a static image asset loaded by BootScene from `public/images/title-box-art-refined.png`.
 - Sound effects are oscillator-based and do not rely on external audio assets.

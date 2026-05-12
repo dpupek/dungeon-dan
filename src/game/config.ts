@@ -33,7 +33,7 @@ export interface GameConfig {
 }
 
 export const GAME_CONFIG: GameConfig = {
-  title: "Dan's Dungeon",
+  title: "Lost Relics of Namron",
   world: {
     width: 960,
     height: 540,

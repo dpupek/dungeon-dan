@@ -26,7 +26,7 @@ export const ROOM_ORDER: RoomId[] = [
 export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
   "canopy-gate": {
     id: "canopy-gate",
-    title: "Canopy Gate",
+    title: "Storm Gate",
     backdrop: {
       farColor: "#12314d",
       midColor: "#2b5d4f",
@@ -54,7 +54,15 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
         speed: 120,
       },
     ],
-    relics: [{ id: "jade-mask", archetypeId: "golden-clam", x: 810, y: 298, label: "Jade Mask" }],
+    relics: [
+      {
+        id: "jade-mask",
+        archetypeId: "golden-clam",
+        x: 810,
+        y: 298,
+        label: "Pennon of the Rising Storm",
+      },
+    ],
     exits: { right: "ember-bridge" },
     spawn: {
       default: { x: 120, y: floorY - 42 },
@@ -64,7 +72,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
   },
   "ember-bridge": {
     id: "ember-bridge",
-    title: "Ember Bridge",
+    title: "Torsade Hall",
     backdrop: {
       farColor: "#1a223f",
       midColor: "#5a3b2c",
@@ -105,7 +113,15 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
         speed: 115,
       },
     ],
-    relics: [{ id: "sun-disc", archetypeId: "golden-clam", x: 560, y: 278, label: "Sun Disc" }],
+    relics: [
+      {
+        id: "sun-disc",
+        archetypeId: "golden-clam",
+        x: 560,
+        y: 278,
+        label: "The Many-Colored Torsade",
+      },
+    ],
     exits: { left: "canopy-gate", right: "monkey-step" },
     spawn: {
       default: { x: 140, y: floorY - 42 },
@@ -115,7 +131,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
   },
   "monkey-step": {
     id: "monkey-step",
-    title: "Monkey Step",
+    title: "Argent Fleur Gallery",
     backdrop: {
       farColor: "#10263e",
       midColor: "#3b5f51",
@@ -161,7 +177,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
         swoopRate: 2.8,
       },
     ],
-    relics: [{ id: "amber-idol", archetypeId: "golden-clam", x: 760, y: 238, label: "Amber Idol" }],
+    relics: [{ id: "amber-idol", archetypeId: "golden-clam", x: 760, y: 238, label: "The Argent Fleur" }],
     exits: { left: "ember-bridge", right: "sunken-vault" },
     spawn: {
       default: { x: 120, y: floorY - 42 },
@@ -171,7 +187,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
   },
   "sunken-vault": {
     id: "sunken-vault",
-    title: "Sunken Vault",
+    title: "Red Axe Vault",
     backdrop: {
       farColor: "#162034",
       midColor: "#3c4958",
@@ -217,7 +233,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
         speed: 120,
       },
     ],
-    relics: [{ id: "moon-gem", archetypeId: "golden-clam", x: 720, y: 208, label: "Moon Gem" }],
+    relics: [{ id: "moon-gem", archetypeId: "golden-clam", x: 720, y: 208, label: "Ascia Rossa" }],
     exits: { left: "monkey-step", right: "fossil-stair" },
     spawn: {
       default: { x: 120, y: floorY - 42 },
@@ -227,7 +243,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
   },
   "fossil-stair": {
     id: "fossil-stair",
-    title: "Fossil Stair",
+    title: "Flying Cow Field",
     backdrop: {
       farColor: "#181f31",
       midColor: "#475262",
@@ -265,7 +281,15 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
         swoopRate: 2.6,
       },
     ],
-    relics: [{ id: "fossil-shell", archetypeId: "golden-clam", x: 800, y: 154, label: "Fossil Shell" }],
+    relics: [
+      {
+        id: "fossil-shell",
+        archetypeId: "golden-clam",
+        x: 800,
+        y: 154,
+        label: "The Flying Cow Token",
+      },
+    ],
     exits: { left: "sunken-vault", right: "idol-hall" },
     spawn: {
       default: { x: 140, y: floorY - 42 },
@@ -275,7 +299,7 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
   },
   "idol-hall": {
     id: "idol-hall",
-    title: "Idol Hall",
+    title: "Sable Heart Hall",
     backdrop: {
       farColor: "#211a33",
       midColor: "#624267",
@@ -321,7 +345,15 @@ export const ROOM_DEFINITIONS: Record<RoomId, RoomDefinition> = {
         swoopRate: 3.2,
       },
     ],
-    relics: [{ id: "sky-crown", archetypeId: "golden-clam", x: 860, y: 208, label: "Sky Crown" }],
+    relics: [
+      {
+        id: "sky-crown",
+        archetypeId: "golden-clam",
+        x: 860,
+        y: 208,
+        label: "Heart of the Sable Storm",
+      },
+    ],
     exits: { left: "fossil-stair" },
     spawn: {
       default: { x: 120, y: floorY - 42 },

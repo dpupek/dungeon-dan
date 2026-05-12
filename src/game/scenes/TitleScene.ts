@@ -40,7 +40,7 @@ export class TitleScene extends Phaser.Scene {
       .setDepth(10);
 
     this.add
-      .text(width / 2, 106, "Dan the Hobbit And The Temple Menagerie", {
+      .text(width / 2, 106, "A Barony of Namron Story", {
         fontFamily: "Georgia",
         fontSize: "24px",
         color: "#f4d35e",
@@ -58,7 +58,7 @@ export class TitleScene extends Phaser.Scene {
       .text(
         width / 2,
         height - 80,
-        "Snatch the six golden clams, dodge Paul, Dave, and Mark,\nand escape the temple before time runs out.",
+        "The Sable Storm has gone quiet. Guide the Seeker through\nNamron's old memory halls, recover six relics, and return the story before time runs out.",
         {
           fontFamily: "Courier New",
           fontSize: "20px",

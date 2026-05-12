@@ -18,7 +18,7 @@ export class EndScene extends Phaser.Scene {
 
     this.add.rectangle(width / 2, height / 2, width, height, 0x0b132b);
     this.add
-      .text(width / 2, 140, didWin ? "Temple Escaped" : "Run Lost", {
+      .text(width / 2, 140, didWin ? "Storm Restored" : "Storm Lost", {
         fontFamily: "Courier New",
         fontSize: "42px",
         color: didWin ? GAME_CONFIG.palette.treasure : GAME_CONFIG.palette.scorpion,
@@ -29,7 +29,7 @@ export class EndScene extends Phaser.Scene {
       .text(
         width / 2,
         250,
-        `Score ${data.runState.score}\nClams ${data.runState.collectedRelicIds.length}/${totalRelicCount}\nLives ${data.runState.lives}`,
+        `Score ${data.runState.score}\nRelics ${data.runState.collectedRelicIds.length}/${totalRelicCount}\nLives ${data.runState.lives}`,
         {
           fontFamily: "Courier New",
           fontSize: "24px",
@@ -44,8 +44,8 @@ export class EndScene extends Phaser.Scene {
         width / 2,
         390,
         didWin
-          ? "You outran the ruins and carried every relic home."
-          : "The temple keeps its prizes for now.",
+          ? "The Sable Storm rises again; the relics of Namron are returned."
+          : "The storm keeps its memories for now.",
         {
           fontFamily: "Courier New",
           fontSize: "22px",
