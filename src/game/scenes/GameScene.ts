@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { RetroSfx } from "../audio/RetroSfx";
+import { STORY_SEQUENCES } from "../content/storySequences";
 import { GAME_CONFIG } from "../config";
 import { getRoomDefinition } from "../data/rooms";
 import { DeveloperConsoleController, type DeveloperConsoleCommand } from "../runtime/DeveloperConsoleController";
@@ -8,8 +9,11 @@ import { HudController } from "../runtime/HudController";
 import { MusicController } from "../runtime/MusicController";
 import { RoomRuntime } from "../runtime/RoomRuntime";
 import { SpawnResolver } from "../runtime/SpawnResolver";
+import { resolveRoomBoundaryAction } from "../runtime/roomTransitions";
 import { PlayerActor, type PlayerIntent } from "../runtime/actors/PlayerActor";
-import type { DoorwayDefinition, FloorLevel, RoomBackdropDefinition, RoomDefinition, RoomId, RunState, ScenePayload } from "../types";
+import { DialogueOverlayController } from "../runtime/story/DialogueOverlayController";
+import { StoryFlowController, type StoryFlowAction } from "../runtime/story/StoryFlowController";
+import type { DoorwayDefinition, FloorLevel, RoomBackdropDefinition, RoomDefinition, RoomId, RunState, ScenePayload, StoryTriggerDefinition } from "../types";
 
 export class GameScene extends Phaser.Scene {
   private session!: GameSessionBridge;
@@ -17,6 +21,8 @@ export class GameScene extends Phaser.Scene {
   private player!: PlayerActor;
   private roomRuntime!: RoomRuntime;
   private spawnResolver!: SpawnResolver;
+  private storyFlow!: StoryFlowController;
+  private dialogueOverlay!: DialogueOverlayController;
   private hud!: HudController;
   private music!: MusicController;
   private developerConsole!: DeveloperConsoleController;
@@ -43,21 +49,23 @@ export class GameScene extends Phaser.Scene {
     this.sfx = new RetroSfx(this);
     this.music = new MusicController(this);
     this.spawnResolver = new SpawnResolver();
+    this.storyFlow = new StoryFlowController(STORY_SEQUENCES);
 
     this.hud = new HudController(this);
+    this.dialogueOverlay = new DialogueOverlayController(this);
     this.developerConsole = new DeveloperConsoleController(this);
     this.roomRuntime = new RoomRuntime(this);
     this.player = new PlayerActor(this);
 
     this.createInput();
     this.loadRoom(this.runState.currentRoomId, "default");
-    this.publishDebugSnapshot();
     void this.music.startGameplayLoop();
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.music.destroy();
       this.roomRuntime.destroy();
       this.hud.destroy();
+      this.dialogueOverlay.destroy();
       this.developerConsole.destroy();
       this.player.destroy();
       this.clearBackdrop();
@@ -66,6 +74,12 @@ export class GameScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     if (this.isPaused || this.isRespawning || this.developerConsole.isConsoleOpen()) {
+      this.refreshUi();
+      return;
+    }
+
+    if (this.storyFlow.isActive()) {
+      this.processStoryActions(this.storyFlow.update(delta));
       this.refreshUi();
       return;
     }
@@ -81,7 +95,16 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.roomRuntime.update(dtSeconds);
+    this.checkStoryTriggerOverlaps();
+    if (this.storyFlow.isActive()) {
+      this.refreshUi();
+      return;
+    }
     this.collectRelicOverlaps();
+    if (this.storyFlow.isActive()) {
+      this.refreshUi();
+      return;
+    }
     this.collectBonusPickupOverlaps();
     this.checkDoorwayTransitions();
     this.checkHazardOverlaps();
@@ -211,7 +234,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.keys.restart.on("down", () => {
-      if (this.developerConsole.isConsoleOpen()) {
+      if (this.developerConsole.isConsoleOpen() || this.storyFlow.isActive()) {
         return;
       }
 
@@ -219,6 +242,12 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.input.keyboard?.on("keydown", (event: KeyboardEvent) => {
+      if (this.storyFlow.isActive() && !this.developerConsole.isConsoleOpen()) {
+        this.handleStoryInput(event);
+        this.refreshUi();
+        return;
+      }
+
       const command = this.developerConsole.handleKey(event, {
         currentRoomId: this.roomRuntime.getRoom().id,
         currentRoomTitle: this.roomRuntime.getRoom().title,
@@ -284,12 +313,19 @@ export class GameScene extends Phaser.Scene {
     this.syncDoorwayStates();
     const spawn = spawnOverride ?? this.spawnResolver.resolveSpawnPoint(room, spawnKey, transitionY, forceFloor);
     this.player.spawn(spawn);
+    this.checkStoryTriggerOverlaps();
     this.refreshUi();
   }
 
   private collectRelicOverlaps(): void {
     const relic = this.roomRuntime.findOverlappingRelic(this.player.getBounds());
     if (!relic) {
+      return;
+    }
+
+    const storySequenceId = this.roomRuntime.getRoom().storyHooks?.onRelicEncounter?.[relic.id];
+    if (storySequenceId && !this.session.hasCollectedRelic(relic.id)) {
+      this.processStoryActions(this.storyFlow.startSequence(storySequenceId), false);
       return;
     }
 
@@ -326,6 +362,23 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private checkStoryTriggerOverlaps(): void {
+    if (this.storyFlow.isActive()) {
+      return;
+    }
+
+    const trigger = this.roomRuntime.findOverlappingStoryTrigger(this.player.getBounds());
+    if (!trigger || !this.isStoryTriggerActive(trigger)) {
+      return;
+    }
+
+    if (trigger.once) {
+      this.runState = this.session.completeStoryTrigger(trigger.id);
+    }
+
+    this.processStoryActions(this.storyFlow.startSequence(trigger.sequenceId), false);
+  }
+
   private checkDoorwayTransitions(): void {
     if (this.isRespawning || this.isBonusTransitioning) {
       return;
@@ -355,14 +408,21 @@ export class GameScene extends Phaser.Scene {
   }
 
   private checkRoomTransitions(): void {
+    const room = this.roomRuntime.getRoom();
     const playerPosition = this.player.getPosition();
-    const leftExit = this.roomRuntime.getRoom().exits.left;
-    const rightExit = this.roomRuntime.getRoom().exits.right;
+    const boundaryAction = resolveRoomBoundaryAction(room, playerPosition.x);
 
-    if (playerPosition.x < -20 && leftExit) {
-      this.loadRoom(leftExit, "fromRight", playerPosition.y);
-    } else if (playerPosition.x > GAME_CONFIG.world.width + 20 && rightExit) {
-      this.loadRoom(rightExit, "fromLeft", playerPosition.y);
+    if (boundaryAction.type === "transition") {
+      if (boundaryAction.edge === "left" && room.exits.left) {
+        this.loadRoom(room.exits.left, "fromRight", playerPosition.y);
+      } else if (boundaryAction.edge === "right" && room.exits.right) {
+        this.loadRoom(room.exits.right, "fromLeft", playerPosition.y);
+      }
+      return;
+    }
+
+    if (boundaryAction.type === "clamp") {
+      this.player.setX(boundaryAction.x);
     }
   }
 
@@ -464,6 +524,7 @@ export class GameScene extends Phaser.Scene {
             }
           : null,
     });
+    this.dialogueOverlay.render(this.storyFlow.getPresentation());
 
     this.developerConsole.refresh({
       currentRoomId: this.roomRuntime.getRoom().id,
@@ -517,7 +578,19 @@ export class GameScene extends Phaser.Scene {
     return true;
   }
 
+  private isStoryTriggerActive(trigger: StoryTriggerDefinition): boolean {
+    if (!trigger.once) {
+      return true;
+    }
+
+    return !this.session.hasCompletedStoryTrigger(trigger.id);
+  }
+
   private publishDebugSnapshot(): void {
+    if (!import.meta.env.DEV) {
+      return;
+    }
+
     const room = this.roomRuntime.getRoom();
     const playerPosition = this.player.getPosition();
     const snapshot = {
@@ -539,9 +612,63 @@ export class GameScene extends Phaser.Scene {
         activeDoorways: room.doorways.filter((doorway) => this.isDoorwayActive(doorway)).map((doorway) => doorway.id),
         totalSpangs: room.bonusPickups.length,
       },
+      story: {
+        active: this.storyFlow.isActive(),
+        dialogue: this.storyFlow.getPresentation(),
+      },
     };
 
     window.__DUNGEON_DAN_STATE = snapshot;
     window.render_game_to_text = () => JSON.stringify(snapshot);
+  }
+
+  private handleStoryInput(event: KeyboardEvent): void {
+    switch (event.code) {
+      case "Enter":
+      case "KeyE":
+      case "Space":
+        event.preventDefault();
+        this.processStoryActions(this.storyFlow.advance());
+        return;
+      case "Escape":
+        event.preventDefault();
+        this.processStoryActions(this.storyFlow.skip());
+        return;
+      default:
+        event.preventDefault();
+        return;
+    }
+  }
+
+  private processStoryActions(actions: StoryFlowAction[], allowWinTransition = true): void {
+    let sequenceEnded = false;
+
+    actions.forEach((action) => {
+      switch (action.type) {
+        case "grant-relic":
+          if (!this.session.hasCollectedRelic(action.relicId)) {
+            this.runState = this.session.collectRelic(action.relicId);
+            this.roomRuntime.collectRelic(action.relicId);
+            this.syncDoorwayStates();
+            this.sfx.pickup();
+          }
+          return;
+        case "camera-focus":
+          this.cameras.main.pan(action.x, action.y, action.durationMs ?? 220, "Sine.easeInOut", true);
+          return;
+        case "sequence-ended":
+          sequenceEnded = true;
+          return;
+        case "none":
+        default:
+          return;
+      }
+    });
+
+    if (allowWinTransition && sequenceEnded && this.runState.status === "won") {
+      this.sfx.win();
+      this.music.stopGameplayLoop();
+      this.scene.start("end", { outcome: "won", runState: this.runState });
+    }
   }
 }

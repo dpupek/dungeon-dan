@@ -10,13 +10,14 @@ describe("RunStateController", () => {
     expect(state.currentRoomId).toBe(ROOM_ORDER[0]);
     expect(state.lives).toBe(3);
     expect(state.score).toBe(0);
+    expect(state.completedStoryTriggerIds).toEqual([]);
     expect(state.bonusRound.status).toBe("locked");
     expect(state.status).toBe("playing");
   });
 
   it("collects relics once and wins after all relics are found", () => {
     const controller = new RunStateController();
-    const ids = ["jade-mask", "sun-disc", "amber-idol", "moon-gem", "fossil-shell", "sky-crown"];
+    const ids = ["jade-mask", "sun-disc", "amber-idol", "moon-gem", "fossil-shell", "sky-crown", "stormshaft-bow"];
 
     ids.forEach((id) => controller.collectRelic(id));
 
@@ -116,5 +117,15 @@ describe("RunStateController", () => {
     controller.startBonusRound({ roomId: "fossil-stair", x: 260, y: 360 });
 
     expect(controller.snapshot.bonusRound.status).toBe("completed");
+  });
+
+  it("tracks completed story triggers once per run", () => {
+    const controller = new RunStateController();
+
+    controller.completeStoryTrigger("stormshaft-range-intro-trigger");
+    controller.completeStoryTrigger("stormshaft-range-intro-trigger");
+
+    expect(controller.snapshot.completedStoryTriggerIds).toEqual(["stormshaft-range-intro-trigger"]);
+    expect(controller.hasCompletedStoryTrigger("stormshaft-range-intro-trigger")).toBe(true);
   });
 });

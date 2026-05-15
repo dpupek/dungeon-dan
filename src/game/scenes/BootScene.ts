@@ -29,6 +29,8 @@ export class BootScene extends Phaser.Scene {
     this.createPlayerAnimations();
     this.createRelicTexture("golden-clam-open", true);
     this.createRelicTexture("golden-clam-closed", false);
+    this.createStormshaftBowTexture("stormshaft-bow-a", false);
+    this.createStormshaftBowTexture("stormshaft-bow-b", true);
     this.createSpangTexture("spang-a", false);
     this.createSpangTexture("spang-b", true);
     this.createPaulTexture("paul-crab-a", false);
@@ -248,6 +250,45 @@ export class BootScene extends Phaser.Scene {
     graphics.fillStyle(blue, 1);
     graphics.fillRect(9, tilted ? 4 : 5, 2, 2);
     graphics.fillRect(5, tilted ? 10 : 9, 2, 2);
+
+    graphics.generateTexture(key, 16, 16);
+    graphics.destroy();
+  }
+
+  private createStormshaftBowTexture(key: string, drawn: boolean): void {
+    const graphics = this.make.graphics({ x: 0, y: 0 }, false);
+    const wood = Phaser.Display.Color.HexStringToColor("#7f5539").color;
+    const woodHighlight = Phaser.Display.Color.HexStringToColor("#ddb892").color;
+    const stringColor = Phaser.Display.Color.HexStringToColor("#fefae0").color;
+    const accent = Phaser.Display.Color.HexStringToColor("#4ea8de").color;
+    const shadow = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.shadow).color;
+
+    graphics.fillStyle(shadow, 1);
+    graphics.fillRect(3, 2, 2, 12);
+    graphics.fillRect(11, 2, 2, 12);
+    graphics.fillRect(5, drawn ? 6 : 7, 6, 2);
+    graphics.fillRect(10, 5, 2, 2);
+
+    graphics.fillStyle(wood, 1);
+    graphics.fillRect(4, 2, 2, 12);
+    graphics.fillRect(10, 2, 2, 12);
+    graphics.fillRect(5, drawn ? 6 : 7, 5, 2);
+    graphics.fillRect(9, 5, 2, 2);
+    graphics.fillRect(8, 8, 2, 2);
+
+    graphics.fillStyle(woodHighlight, 1);
+    graphics.fillRect(4, 3, 1, 9);
+    graphics.fillRect(10, 3, 1, 9);
+    graphics.fillRect(6, drawn ? 6 : 7, 3, 1);
+
+    graphics.fillStyle(stringColor, 1);
+    graphics.fillRect(drawn ? 5 : 6, 3, 1, 9);
+    graphics.fillRect(drawn ? 9 : 10, 3, 1, 9);
+
+    graphics.fillStyle(accent, 1);
+    graphics.fillRect(8, 5, 1, 1);
+    graphics.fillRect(7, 9, 1, 1);
+    graphics.fillRect(11, 6, 2, 1);
 
     graphics.generateTexture(key, 16, 16);
     graphics.destroy();

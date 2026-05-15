@@ -174,6 +174,12 @@ Implemented in the current slice:
 - Give the Stormshaft Bow and Three Black Axes dedicated room identities.
 - Add distinct encounter rhythms that represent patience, aim, timing, and controlled commitment.
 
+Implemented in the current slice:
+
+- `stormshaft-range` extends the main route with a dedicated Stormshaft Bow room.
+- The room uses steward-echo dialogue and a Phaser-native cutscene/dialogue overlay instead of scene-local text.
+- The first story-flow pass supports room-authored trigger zones, soft gameplay lock during dialogue, advance/skip controls, and relic-grant beats that can hand off to the end scene.
+
 ### Phase 7: Polish and validation
 
 - Run build and tests after each gameplay slice.

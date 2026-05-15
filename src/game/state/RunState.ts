@@ -16,6 +16,7 @@ export class RunStateController {
       score: 0,
       timeRemainingMs: GAME_CONFIG.run.timerSeconds * 1000,
       collectedRelicIds: [],
+      completedStoryTriggerIds: [],
       bonusRound: {
         status: "locked",
         timeRemainingMs: 0,
@@ -31,6 +32,7 @@ export class RunStateController {
     return {
       ...this.state,
       collectedRelicIds: [...this.state.collectedRelicIds],
+      completedStoryTriggerIds: [...this.state.completedStoryTriggerIds],
       bonusRound: {
         ...this.state.bonusRound,
         returnContext: this.state.bonusRound.returnContext ? { ...this.state.bonusRound.returnContext } : null,
@@ -107,6 +109,18 @@ export class RunStateController {
 
   hasCollected(treasureId: string): boolean {
     return this.hasCollectedRelic(treasureId);
+  }
+
+  hasCompletedStoryTrigger(triggerId: string): boolean {
+    return this.state.completedStoryTriggerIds.includes(triggerId);
+  }
+
+  completeStoryTrigger(triggerId: string): RunState {
+    if (!this.state.completedStoryTriggerIds.includes(triggerId)) {
+      this.state.completedStoryTriggerIds = [...this.state.completedStoryTriggerIds, triggerId];
+    }
+
+    return this.snapshot;
   }
 
   startBonusRound(returnContext: { roomId: RoomId; x: number; y: number }): RunState {

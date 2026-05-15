@@ -236,6 +236,10 @@ export class PlayerActor {
     return { x: this.sprite.x, y: this.sprite.y };
   }
 
+  setX(x: number): void {
+    this.sprite.x = x;
+  }
+
   getFloorLevel(environment: PlayerEnvironment): FloorLevel {
     return environment.getFloorLevel(this.getBounds());
   }

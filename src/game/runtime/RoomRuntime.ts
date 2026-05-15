@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { ACTOR_ARCHETYPES } from "../content/archetypes";
 import { GAME_CONFIG } from "../config";
-import type { BonusPickupDefinition, DoorwayDefinition } from "../types";
+import type { BonusPickupDefinition, DoorwayDefinition, StoryTriggerDefinition } from "../types";
 import { HazardActor } from "./actors/HazardActor";
 import { BonusPickupActor } from "./actors/BonusPickupActor";
 import { RelicActor } from "./actors/RelicActor";
@@ -27,7 +27,15 @@ export class RoomRuntime {
   private relicActors: RelicActor[] = [];
   private bonusPickupActors: BonusPickupActor[] = [];
   private doorwayViews: Phaser.GameObjects.Container[] = [];
-  private doorwayViewById = new Map<string, Phaser.GameObjects.Container>();
+  private doorwayViewById = new Map<
+    string,
+    {
+      container: Phaser.GameObjects.Container;
+      frame: Phaser.GameObjects.Rectangle;
+      glow: Phaser.GameObjects.Rectangle;
+      sign: Phaser.GameObjects.Text;
+    }
+  >();
 
   constructor(private readonly scene: Phaser.Scene) {}
 
@@ -60,7 +68,7 @@ export class RoomRuntime {
 
     this.room.doorways.forEach((doorway) => {
       const view = this.createDoorwayView(doorway);
-      this.doorwayViews.push(view);
+      this.doorwayViews.push(view.container);
       this.doorwayViewById.set(doorway.id, view);
     });
   }
@@ -191,6 +199,22 @@ export class RoomRuntime {
     return null;
   }
 
+  findOverlappingStoryTrigger(bounds: Phaser.Geom.Rectangle): StoryTriggerDefinition | null {
+    for (const trigger of this.room.storyTriggers ?? []) {
+      const triggerRect = new Phaser.Geom.Rectangle(
+        trigger.x - trigger.width / 2,
+        trigger.y - trigger.height / 2,
+        trigger.width,
+        trigger.height,
+      );
+      if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, triggerRect)) {
+        return trigger;
+      }
+    }
+
+    return null;
+  }
+
   collectRelic(relicId: string): void {
     const relic = this.relicActors.find((entry) => entry.getDefinition().id === relicId);
     if (!relic) {
@@ -217,7 +241,14 @@ export class RoomRuntime {
       return;
     }
 
-    view.setVisible(active);
+    view.container.setVisible(true);
+    view.container.setAlpha(active ? 1 : 0.52);
+    view.frame.setFillStyle(active ? 0x2d1e2f : 0x2b2d42, active ? 0.24 : 0.18);
+    view.frame.setStrokeStyle(3, active ? 0xf4d35e : 0x8d99ae, active ? 0.75 : 0.5);
+    view.glow.setFillStyle(active ? 0x9ef01a : 0x495057, active ? 0.18 : 0.14);
+    view.glow.setStrokeStyle(2, active ? 0xd9ed92 : 0xced4da, active ? 0.55 : 0.35);
+    const prompt = view.sign.getData("prompt") as string;
+    view.sign.setText(active ? prompt : `${prompt} Locked`);
   }
 
   destroy(): void {
@@ -326,7 +357,12 @@ export class RoomRuntime {
     return view;
   }
 
-  private createDoorwayView(doorway: DoorwayDefinition): Phaser.GameObjects.Container {
+  private createDoorwayView(doorway: DoorwayDefinition): {
+    container: Phaser.GameObjects.Container;
+    frame: Phaser.GameObjects.Rectangle;
+    glow: Phaser.GameObjects.Rectangle;
+    sign: Phaser.GameObjects.Text;
+  } {
     const container = this.scene.add.container(doorway.x, doorway.y);
     container.setDepth(3);
 
@@ -343,9 +379,10 @@ export class RoomRuntime {
       strokeThickness: 4,
     });
     sign.setOrigin(0.5, 0);
+    sign.setData("prompt", doorway.prompt);
 
     container.add([frame, glow, lintel, sign]);
-    return container;
+    return { container, frame, glow, sign };
   }
 
   private getPlatformSpan(platform: PlatformDefinition, inset = 0): HorizontalSpan {

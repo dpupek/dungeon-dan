@@ -58,7 +58,7 @@ export class TitleScene extends Phaser.Scene {
       .text(
         width / 2,
         height - 80,
-        "The Sable Storm has gone quiet. Guide the Seeker through\nNamron's old memory halls, recover six relics, and return the story before time runs out.",
+        "The Sable Storm has gone quiet. Guide the Seeker through\nNamron's old memory halls, recover the relics, and return the story before time runs out.",
         {
           fontFamily: "Courier New",
           fontSize: "20px",

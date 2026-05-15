@@ -57,6 +57,12 @@ export const RELIC_ARCHETYPES: Record<RelicArchetypeId, RelicArchetype> = {
     animationSetId: RELIC_ANIMATION_MANIFESTS["golden-clam"].id,
     baseScale: 2.5,
   },
+  "stormshaft-bow": {
+    id: "stormshaft-bow",
+    label: "Stormshaft Bow",
+    animationSetId: RELIC_ANIMATION_MANIFESTS["stormshaft-bow"].id,
+    baseScale: 2.25,
+  },
   spang: {
     id: "spang",
     label: "Spang",

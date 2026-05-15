@@ -29,3 +29,34 @@ Validation
 
 - `npm test` -> passed
 - `npm run build` -> passed
+
+2026-05-14
+
+- Implemented the Phase 6 Stormshaft Bow champion-room slice in the gameplay runtime.
+- Added `stormshaft-range` as a main-route room with a timing-focused relic encounter built around `The Stormshaft Bow`.
+- Added a first reusable story-flow layer with authored room triggers, linear steward-echo sequences, soft gameplay lock, advance/skip input, and scripted relic-grant beats.
+- Added a Phaser-native dialogue overlay controller that keeps story content renderer-agnostic while proving the first Zelda-style denizen conversation flow.
+- Dev-gated the browser debug globals so validation hooks remain available locally without shipping an unconditional production surface.
+
+Validation
+
+- `npm test` -> passed
+- `npm run build` -> passed
+- Browser/runtime verification confirmed:
+  - the Stormshaft intro trigger starts on room entry
+  - player movement is blocked while dialogue is active
+  - the Stormshaft outro starts on relic encounter
+  - skipping the outro still grants `stormshaft-bow`
+  - the final relic handoff transitions cleanly into the end scene
+
+2026-05-14
+
+- Polished the post-review Phase 5 and Phase 6 regressions from manual browser feedback.
+- Moved the Beltane gate onto the main `fossil-stair` route and kept locked doorways visibly present with a dimmed `Locked` state.
+- Added dedicated `stormshaft-bow` relic art instead of reusing the generic clam pickup.
+- Fixed room-boundary handling so rooms without an authored exit clamp the player at the edge instead of allowing an offscreen death, and added a focused transition regression test.
+
+Validation
+
+- `npm test` -> passed
+- `npm run build` -> passed

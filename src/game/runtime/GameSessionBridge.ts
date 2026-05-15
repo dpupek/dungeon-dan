@@ -40,6 +40,14 @@ export class GameSessionBridge {
     return this.controller.hasCollectedRelic(relicId);
   }
 
+  hasCompletedStoryTrigger(triggerId: string): boolean {
+    return this.controller.hasCompletedStoryTrigger(triggerId);
+  }
+
+  completeStoryTrigger(triggerId: string): RunState {
+    return this.controller.completeStoryTrigger(triggerId);
+  }
+
   startBonusRound(returnContext: { roomId: RoomId; x: number; y: number }): RunState {
     return this.controller.startBonusRound(returnContext);
   }

@@ -5,7 +5,8 @@ export type RoomId =
   | "sunken-vault"
   | "fossil-stair"
   | "idol-hall"
-  | "maypole-spang-run";
+  | "maypole-spang-run"
+  | "stormshaft-range";
 export type FloorLevel = "ground" | "basement";
 export type AnimationSetId =
   | "dan"
@@ -14,9 +15,10 @@ export type AnimationSetId =
   | "mark-wasp"
   | "flying-cow"
   | "golden-clam"
+  | "stormshaft-bow"
   | "spang";
 export type ActorArchetypeId = "paul-crab" | "dave-goat" | "mark-wasp" | "flying-cow";
-export type RelicArchetypeId = "golden-clam" | "spang";
+export type RelicArchetypeId = "golden-clam" | "stormshaft-bow" | "spang";
 
 export interface PlatformDefinition {
   x: number;
@@ -89,6 +91,59 @@ export interface DoorwayDefinition {
   prompt: string;
 }
 
+export interface StoryLineBeatDefinition {
+  type: "line";
+  speakerId: string;
+  speakerName: string;
+  text: string;
+  portraitKey?: string;
+}
+
+export interface StoryPauseBeatDefinition {
+  type: "pause";
+  durationMs: number;
+}
+
+export interface StoryCameraFocusBeatDefinition {
+  type: "camera-focus";
+  x: number;
+  y: number;
+  durationMs?: number;
+}
+
+export interface StoryGrantRelicBeatDefinition {
+  type: "grant-relic";
+  relicId: string;
+}
+
+export interface StoryEndBeatDefinition {
+  type: "end";
+}
+
+export type StoryBeatDefinition =
+  | StoryLineBeatDefinition
+  | StoryPauseBeatDefinition
+  | StoryCameraFocusBeatDefinition
+  | StoryGrantRelicBeatDefinition
+  | StoryEndBeatDefinition;
+
+export interface StorySequenceDefinition {
+  id: string;
+  skippable?: boolean;
+  beats: StoryBeatDefinition[];
+}
+
+export interface StoryTriggerDefinition {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  sequenceId: string;
+  autoStart?: boolean;
+  once?: boolean;
+}
+
 export interface RoomDefinition {
   id: RoomId;
   title: string;
@@ -99,6 +154,10 @@ export interface RoomDefinition {
   relics: RelicInstanceDefinition[];
   bonusPickups: BonusPickupDefinition[];
   doorways: DoorwayDefinition[];
+  storyTriggers?: StoryTriggerDefinition[];
+  storyHooks?: {
+    onRelicEncounter?: Record<string, string>;
+  };
   exits: {
     left?: RoomId;
     right?: RoomId;
@@ -116,6 +175,7 @@ export interface RunState {
   score: number;
   timeRemainingMs: number;
   collectedRelicIds: string[];
+  completedStoryTriggerIds: string[];
   bonusRound: {
     status: "locked" | "available" | "active" | "completed";
     timeRemainingMs: number;

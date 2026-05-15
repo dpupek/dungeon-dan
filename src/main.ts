@@ -11,6 +11,7 @@ declare global {
     __DUNGEON_DAN_GAME?: Phaser.Game;
     __DUNGEON_DAN_STATE?: unknown;
     render_game_to_text?: () => string;
+    advanceTime?: (ms: number) => Promise<void>;
   }
 }
 
@@ -36,4 +37,7 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 const game = new Phaser.Game(config);
-window.__DUNGEON_DAN_GAME = game;
+if (import.meta.env.DEV) {
+  window.__DUNGEON_DAN_GAME = game;
+  window.advanceTime = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+}
