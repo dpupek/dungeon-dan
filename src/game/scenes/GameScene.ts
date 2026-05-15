@@ -9,7 +9,7 @@ import { MusicController } from "../runtime/MusicController";
 import { RoomRuntime } from "../runtime/RoomRuntime";
 import { SpawnResolver } from "../runtime/SpawnResolver";
 import { PlayerActor, type PlayerIntent } from "../runtime/actors/PlayerActor";
-import type { FloorLevel, RoomBackdropDefinition, RoomDefinition, RoomId, RunState, ScenePayload } from "../types";
+import type { DoorwayDefinition, FloorLevel, RoomBackdropDefinition, RoomDefinition, RoomId, RunState, ScenePayload } from "../types";
 
 export class GameScene extends Phaser.Scene {
   private session!: GameSessionBridge;
@@ -28,6 +28,7 @@ export class GameScene extends Phaser.Scene {
   private sfx!: RetroSfx;
   private isPaused = false;
   private isRespawning = false;
+  private isBonusTransitioning = false;
   private backdropViews: Phaser.GameObjects.GameObject[] = [];
   private transientStatusText: string | null = null;
   private transientStatusUntil = 0;
@@ -50,6 +51,7 @@ export class GameScene extends Phaser.Scene {
 
     this.createInput();
     this.loadRoom(this.runState.currentRoomId, "default");
+    this.publishDebugSnapshot();
     void this.music.startGameplayLoop();
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -80,11 +82,16 @@ export class GameScene extends Phaser.Scene {
 
     this.roomRuntime.update(dtSeconds);
     this.collectRelicOverlaps();
+    this.collectBonusPickupOverlaps();
+    this.checkDoorwayTransitions();
     this.checkHazardOverlaps();
     this.checkRoomTransitions();
     this.checkFallDeath();
 
     this.runState = this.session.tick(delta);
+    if (this.runState.bonusRound.status === "active" && this.runState.bonusRound.timeRemainingMs === 0) {
+      this.exitBonusRound("The music ended. Score what you gathered and run on.");
+    }
     this.refreshUi();
 
     if (this.runState.status === "lost") {
@@ -149,6 +156,17 @@ export class GameScene extends Phaser.Scene {
           this.add.circle(190, 214, 86, color, 0.14),
           this.add.circle(720, 202, 104, color, 0.12),
           this.add.rectangle(500, 180, 180, 90, color, 0.22).setAngle(-4),
+        ];
+      case "field":
+        return [
+          this.add.ellipse(180, 408, 360, 96, color, 0.28),
+          this.add.ellipse(730, 400, 420, 104, color, 0.24),
+          this.add.rectangle(480, 210, 18, 280, 0xe9c46a, 0.95),
+          this.add.triangle(470, 112, 0, 20, 70, 0, 70, 40, 0xdb5461, 0.9),
+          this.add.rectangle(350, 256, 220, 10, 0xef476f, 0.4).setAngle(-28),
+          this.add.rectangle(612, 256, 220, 10, 0x118ab2, 0.4).setAngle(28),
+          this.add.rectangle(370, 312, 180, 10, 0xf4d35e, 0.35).setAngle(-18),
+          this.add.rectangle(590, 314, 180, 10, 0x80ed99, 0.35).setAngle(18),
         ];
       case "canopy":
       default:
@@ -256,13 +274,15 @@ export class GameScene extends Phaser.Scene {
     spawnKey: "default" | "fromLeft" | "fromRight",
     transitionY?: number,
     forceFloor?: FloorLevel,
+    spawnOverride?: { x: number; y: number },
   ): void {
     this.runState = this.session.moveToRoom(roomId);
     const room = getRoomDefinition(roomId);
     this.drawBackdrop(room);
     this.roomRuntime.load(room, this.runState.collectedRelicIds);
 
-    const spawn = this.spawnResolver.resolveSpawnPoint(room, spawnKey, transitionY, forceFloor);
+    this.syncDoorwayStates();
+    const spawn = spawnOverride ?? this.spawnResolver.resolveSpawnPoint(room, spawnKey, transitionY, forceFloor);
     this.player.spawn(spawn);
     this.refreshUi();
   }
@@ -275,6 +295,7 @@ export class GameScene extends Phaser.Scene {
 
     this.runState = this.session.collectRelic(relic.id);
     this.roomRuntime.collectRelic(relic.id);
+    this.syncDoorwayStates();
     this.sfx.pickup();
     this.refreshUi();
 
@@ -285,6 +306,39 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private collectBonusPickupOverlaps(): void {
+    if (this.runState.bonusRound.status !== "active") {
+      return;
+    }
+
+    const pickup = this.roomRuntime.findOverlappingBonusPickup(this.player.getBounds());
+    if (!pickup) {
+      return;
+    }
+
+    this.runState = this.session.collectSpang();
+    this.roomRuntime.collectBonusPickup(pickup.id);
+    this.sfx.pickup();
+    this.refreshUi();
+
+    if (this.runState.bonusRound.spangsCollected >= this.roomRuntime.getRoom().bonusPickups.length) {
+      this.exitBonusRound("Every spang is yours. The gate throws you back laughing.");
+    }
+  }
+
+  private checkDoorwayTransitions(): void {
+    if (this.isRespawning || this.isBonusTransitioning) {
+      return;
+    }
+
+    const doorway = this.roomRuntime.findOverlappingDoorway(this.player.getBounds());
+    if (!doorway || !this.isDoorwayActive(doorway)) {
+      return;
+    }
+
+    this.enterBonusRoom(doorway);
+  }
+
   private checkHazardOverlaps(): void {
     if (this.isRespawning || this.runState.status !== "playing") {
       return;
@@ -292,6 +346,10 @@ export class GameScene extends Phaser.Scene {
 
     const hazard = this.roomRuntime.findOverlappingHazard(this.player.getBounds());
     if (hazard) {
+      if (this.runState.bonusRound.status === "active") {
+        this.exitBonusRound("A flying cow clipped you out of the round.");
+        return;
+      }
       void this.handleDeath(hazard.archetypeId);
     }
   }
@@ -310,11 +368,53 @@ export class GameScene extends Phaser.Scene {
 
   private checkFallDeath(): void {
     if (this.player.getPosition().y > GAME_CONFIG.world.height + 32) {
+      if (this.runState.bonusRound.status === "active") {
+        this.exitBonusRound("You fell out of the field and the gate shut behind you.");
+        return;
+      }
       void this.handleDeath();
     }
   }
 
-  private async handleDeath(cause?: "paul-crab" | "dave-goat" | "mark-wasp"): Promise<void> {
+  private enterBonusRoom(doorway: DoorwayDefinition): void {
+    if (this.isBonusTransitioning) {
+      return;
+    }
+
+    this.isBonusTransitioning = true;
+    this.runState = this.session.startBonusRound({
+      roomId: this.roomRuntime.getRoom().id,
+      x: doorway.returnPosition.x,
+      y: doorway.returnPosition.y,
+    });
+    this.loadRoom(doorway.destinationRoomId, "default");
+    this.isBonusTransitioning = false;
+    this.showTransientStatus("Maypole Spang Run");
+  }
+
+  private exitBonusRound(summary: string): void {
+    if (this.isBonusTransitioning || this.runState.bonusRound.status !== "active") {
+      return;
+    }
+
+    const returnContext = this.runState.bonusRound.returnContext;
+    if (!returnContext) {
+      return;
+    }
+
+    this.isBonusTransitioning = true;
+    const spangsCollected = this.runState.bonusRound.spangsCollected;
+    const scoreCollected = this.runState.bonusRound.scoreCollected;
+    this.runState = this.session.completeBonusRound();
+    this.loadRoom(returnContext.roomId, "default", undefined, undefined, {
+      x: returnContext.x,
+      y: returnContext.y,
+    });
+    this.isBonusTransitioning = false;
+    this.showTransientStatus(`${summary} Spangs ${spangsCollected}/12  Score +${scoreCollected}`);
+  }
+
+  private async handleDeath(cause?: "paul-crab" | "dave-goat" | "mark-wasp" | "flying-cow"): Promise<void> {
     if (this.isRespawning || this.runState.status !== "playing") {
       return;
     }
@@ -354,6 +454,15 @@ export class GameScene extends Phaser.Scene {
       paused: this.isPaused,
       developerConsoleOpen: this.developerConsole.isConsoleOpen(),
       statusMessage: this.transientStatusUntil > now ? this.transientStatusText : null,
+      bonusRound:
+        this.runState.bonusRound.status === "active"
+          ? {
+              active: true,
+              spangsCollected: this.runState.bonusRound.spangsCollected,
+              totalSpangs: this.roomRuntime.getRoom().bonusPickups.length,
+              timeRemainingMs: this.runState.bonusRound.timeRemainingMs,
+            }
+          : null,
     });
 
     this.developerConsole.refresh({
@@ -363,6 +472,7 @@ export class GameScene extends Phaser.Scene {
       runState: this.runState,
       totalRelics: this.session.totalRelicCount,
     });
+    this.publishDebugSnapshot();
   }
 
   private handleMusicKey(event: KeyboardEvent): void {
@@ -387,5 +497,51 @@ export class GameScene extends Phaser.Scene {
   private showTransientStatus(text: string): void {
     this.transientStatusText = text;
     this.transientStatusUntil = this.time.now + GAME_CONFIG.audio.musicStatusMessageMs;
+  }
+
+  private syncDoorwayStates(): void {
+    this.roomRuntime.getRoom().doorways.forEach((doorway) => {
+      this.roomRuntime.setDoorwayActive(doorway.id, this.isDoorwayActive(doorway));
+    });
+  }
+
+  private isDoorwayActive(doorway: DoorwayDefinition): boolean {
+    if (doorway.unlockRelicId && !this.session.hasCollectedRelic(doorway.unlockRelicId)) {
+      return false;
+    }
+
+    if (doorway.oneShot && this.runState.bonusRound.status !== "available") {
+      return false;
+    }
+
+    return true;
+  }
+
+  private publishDebugSnapshot(): void {
+    const room = this.roomRuntime.getRoom();
+    const playerPosition = this.player.getPosition();
+    const snapshot = {
+      roomId: room.id,
+      roomTitle: room.title,
+      player: {
+        x: Math.round(playerPosition.x),
+        y: Math.round(playerPosition.y),
+      },
+      run: {
+        score: this.runState.score,
+        lives: this.runState.lives,
+        relicsCollected: this.runState.collectedRelicIds.length,
+        timeRemainingMs: this.runState.timeRemainingMs,
+        status: this.runState.status,
+      },
+      bonusRound: {
+        ...this.runState.bonusRound,
+        activeDoorways: room.doorways.filter((doorway) => this.isDoorwayActive(doorway)).map((doorway) => doorway.id),
+        totalSpangs: room.bonusPickups.length,
+      },
+    };
+
+    window.__DUNGEON_DAN_STATE = snapshot;
+    window.render_game_to_text = () => JSON.stringify(snapshot);
   }
 }

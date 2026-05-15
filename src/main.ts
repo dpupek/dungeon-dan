@@ -6,6 +6,14 @@ import { EndScene } from "./game/scenes/EndScene";
 import { GameScene } from "./game/scenes/GameScene";
 import { TitleScene } from "./game/scenes/TitleScene";
 
+declare global {
+  interface Window {
+    __DUNGEON_DAN_GAME?: Phaser.Game;
+    __DUNGEON_DAN_STATE?: unknown;
+    render_game_to_text?: () => string;
+  }
+}
+
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: GAME_CONFIG.world.width,
@@ -27,4 +35,5 @@ const config: Phaser.Types.Core.GameConfig = {
   scene: [BootScene, TitleScene, GameScene, EndScene],
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
+window.__DUNGEON_DAN_GAME = game;

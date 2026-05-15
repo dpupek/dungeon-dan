@@ -4,11 +4,19 @@ export type RoomId =
   | "monkey-step"
   | "sunken-vault"
   | "fossil-stair"
-  | "idol-hall";
+  | "idol-hall"
+  | "maypole-spang-run";
 export type FloorLevel = "ground" | "basement";
-export type AnimationSetId = "dan" | "paul-crab" | "dave-goat" | "mark-wasp" | "golden-clam";
-export type ActorArchetypeId = "paul-crab" | "dave-goat" | "mark-wasp";
-export type RelicArchetypeId = "golden-clam";
+export type AnimationSetId =
+  | "dan"
+  | "paul-crab"
+  | "dave-goat"
+  | "mark-wasp"
+  | "flying-cow"
+  | "golden-clam"
+  | "spang";
+export type ActorArchetypeId = "paul-crab" | "dave-goat" | "mark-wasp" | "flying-cow";
+export type RelicArchetypeId = "golden-clam" | "spang";
 
 export interface PlatformDefinition {
   x: number;
@@ -24,7 +32,7 @@ export interface LadderDefinition {
   height: number;
 }
 
-export type BackdropSilhouetteId = "canopy" | "bridge" | "ruins" | "idol";
+export type BackdropSilhouetteId = "canopy" | "bridge" | "ruins" | "idol" | "field";
 
 export interface RoomBackdropDefinition {
   farColor: string;
@@ -37,6 +45,14 @@ export interface RoomBackdropDefinition {
 export interface RelicInstanceDefinition {
   id: string;
   archetypeId: RelicArchetypeId;
+  x: number;
+  y: number;
+  label: string;
+}
+
+export interface BonusPickupDefinition {
+  id: string;
+  archetypeId: "spang";
   x: number;
   y: number;
   label: string;
@@ -60,6 +76,19 @@ export interface ActorInstanceDefinition {
 export type HazardDefinition = ActorInstanceDefinition;
 export type TreasureDefinition = RelicInstanceDefinition;
 
+export interface DoorwayDefinition {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  destinationRoomId: RoomId;
+  returnPosition: { x: number; y: number };
+  unlockRelicId?: string;
+  oneShot?: boolean;
+  prompt: string;
+}
+
 export interface RoomDefinition {
   id: RoomId;
   title: string;
@@ -68,6 +97,8 @@ export interface RoomDefinition {
   ladders: LadderDefinition[];
   actors: ActorInstanceDefinition[];
   relics: RelicInstanceDefinition[];
+  bonusPickups: BonusPickupDefinition[];
+  doorways: DoorwayDefinition[];
   exits: {
     left?: RoomId;
     right?: RoomId;
@@ -85,6 +116,17 @@ export interface RunState {
   score: number;
   timeRemainingMs: number;
   collectedRelicIds: string[];
+  bonusRound: {
+    status: "locked" | "available" | "active" | "completed";
+    timeRemainingMs: number;
+    scoreCollected: number;
+    spangsCollected: number;
+    returnContext: {
+      roomId: RoomId;
+      x: number;
+      y: number;
+    } | null;
+  };
   status: "title" | "playing" | "won" | "lost";
 }
 

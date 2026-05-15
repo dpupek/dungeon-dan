@@ -16,6 +16,13 @@ export class RunStateController {
       score: 0,
       timeRemainingMs: GAME_CONFIG.run.timerSeconds * 1000,
       collectedRelicIds: [],
+      bonusRound: {
+        status: "locked",
+        timeRemainingMs: 0,
+        scoreCollected: 0,
+        spangsCollected: 0,
+        returnContext: null,
+      },
       status: "playing",
     };
   }
@@ -24,6 +31,10 @@ export class RunStateController {
     return {
       ...this.state,
       collectedRelicIds: [...this.state.collectedRelicIds],
+      bonusRound: {
+        ...this.state.bonusRound,
+        returnContext: this.state.bonusRound.returnContext ? { ...this.state.bonusRound.returnContext } : null,
+      },
     };
   }
 
@@ -49,6 +60,9 @@ export class RunStateController {
     if (!this.state.collectedRelicIds.includes(relicId)) {
       this.state.collectedRelicIds = [...this.state.collectedRelicIds, relicId];
       this.state.score += GAME_CONFIG.run.relicScore;
+      if (relicId === "fossil-shell" && this.state.bonusRound.status === "locked") {
+        this.state.bonusRound.status = "available";
+      }
     }
 
     if (this.state.collectedRelicIds.length === this.totalRelicCount) {
@@ -68,6 +82,9 @@ export class RunStateController {
     }
 
     this.state.timeRemainingMs = Math.max(0, this.state.timeRemainingMs - deltaMs);
+    if (this.state.bonusRound.status === "active") {
+      this.state.bonusRound.timeRemainingMs = Math.max(0, this.state.bonusRound.timeRemainingMs - deltaMs);
+    }
     if (this.state.timeRemainingMs === 0) {
       this.state.status = "lost";
     }
@@ -90,6 +107,45 @@ export class RunStateController {
 
   hasCollected(treasureId: string): boolean {
     return this.hasCollectedRelic(treasureId);
+  }
+
+  startBonusRound(returnContext: { roomId: RoomId; x: number; y: number }): RunState {
+    if (this.state.bonusRound.status !== "available") {
+      return this.snapshot;
+    }
+
+    this.state.bonusRound = {
+      ...this.state.bonusRound,
+      status: "active",
+      timeRemainingMs: GAME_CONFIG.run.bonusRoundSeconds * 1000,
+      scoreCollected: 0,
+      spangsCollected: 0,
+      returnContext: { ...returnContext },
+    };
+
+    return this.snapshot;
+  }
+
+  collectSpang(): RunState {
+    if (this.state.bonusRound.status !== "active") {
+      return this.snapshot;
+    }
+
+    this.state.score += GAME_CONFIG.run.spangScore;
+    this.state.bonusRound.scoreCollected += GAME_CONFIG.run.spangScore;
+    this.state.bonusRound.spangsCollected += 1;
+    return this.snapshot;
+  }
+
+  completeBonusRound(): RunState {
+    this.state.bonusRound = {
+      ...this.state.bonusRound,
+      status: "completed",
+      timeRemainingMs: 0,
+      returnContext: null,
+    };
+
+    return this.snapshot;
   }
 
   get totalRelicCount(): number {

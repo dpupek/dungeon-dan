@@ -44,13 +44,26 @@ export class HudController {
     roomTitle: string,
     runState: RunState,
     totalRelics: number,
-    uiState: { paused: boolean; developerConsoleOpen: boolean; statusMessage?: string | null },
+    uiState: {
+      paused: boolean;
+      developerConsoleOpen: boolean;
+      statusMessage?: string | null;
+      bonusRound?: { active: boolean; spangsCollected: number; totalSpangs: number; timeRemainingMs: number } | null;
+    },
   ): void {
     const seconds = Math.ceil(runState.timeRemainingMs / 1000);
     this.roomLabel.setText(roomTitle);
-    this.hudLabel.setText(
-      `Score ${runState.score}   Lives ${runState.lives}   Relics ${runState.collectedRelicIds.length}/${totalRelics}   Time ${seconds}`,
-    );
+    const bonusRound = uiState.bonusRound;
+    if (bonusRound?.active) {
+      const bonusSeconds = Math.ceil(bonusRound.timeRemainingMs / 1000);
+      this.hudLabel.setText(
+        `Score ${runState.score}   Lives ${runState.lives}   Time ${seconds}   Spangs ${bonusRound.spangsCollected}/${bonusRound.totalSpangs}   Bonus ${bonusSeconds}`,
+      );
+    } else {
+      this.hudLabel.setText(
+        `Score ${runState.score}   Lives ${runState.lives}   Relics ${runState.collectedRelicIds.length}/${totalRelics}   Time ${seconds}`,
+      );
+    }
     if (uiState.developerConsoleOpen) {
       this.statusLabel.setText("Dev Console Open");
     } else if (uiState.statusMessage) {

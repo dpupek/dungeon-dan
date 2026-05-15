@@ -40,6 +40,18 @@ export class GameSessionBridge {
     return this.controller.hasCollectedRelic(relicId);
   }
 
+  startBonusRound(returnContext: { roomId: RoomId; x: number; y: number }): RunState {
+    return this.controller.startBonusRound(returnContext);
+  }
+
+  collectSpang(): RunState {
+    return this.controller.collectSpang();
+  }
+
+  completeBonusRound(): RunState {
+    return this.controller.completeBonusRound();
+  }
+
   get totalRelicCount(): number {
     return this.controller.totalRelicCount;
   }

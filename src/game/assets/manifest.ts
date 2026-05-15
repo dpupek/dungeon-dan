@@ -67,12 +67,22 @@ export const ACTOR_ANIMATION_MANIFESTS: Record<ActorArchetypeId, ActorAnimationM
     idle: ["mark-wasp-a", "mark-wasp-b"],
     swoop: ["mark-wasp-a", "mark-wasp-b"],
   },
+  "flying-cow": {
+    id: "flying-cow",
+    idle: ["flying-cow-a", "flying-cow-b"],
+    swoop: ["flying-cow-a", "flying-cow-b"],
+  },
 };
 
 export const RELIC_ANIMATION_MANIFESTS: Record<RelicArchetypeId, RelicAnimationManifest> = {
   "golden-clam": {
     id: "golden-clam",
     idle: ["golden-clam-open", "golden-clam-closed"],
+    collected: [],
+  },
+  spang: {
+    id: "spang",
+    idle: ["spang-a", "spang-b"],
     collected: [],
   },
 };

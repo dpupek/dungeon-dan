@@ -162,6 +162,12 @@ Issue `#18` begins as a narrative-skin pass over the current six-room playable. 
 - Add cows as the bonus-round enemy.
 - Return the player to the main route when the timer ends.
 
+Implemented in the current slice:
+
+- `fossil-stair` now unlocks a one-shot Beltane gate after `The Flying Cow Token` is recovered.
+- The gate enters `maypole-spang-run`, a 35-second bonus field with 12 score-only spangs and flying cow hazards.
+- Cow hits or time expiry end the bonus round and return the Seeker to the authored gate return point without costing a life.
+
 ### Phase 6: Champion rooms
 
 - Add or revise rooms for Protector, Baroness's Justice, archery champions, and thrown weapons champions.

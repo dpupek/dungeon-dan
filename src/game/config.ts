@@ -16,6 +16,8 @@ export interface GameConfig {
     lives: number;
     timerSeconds: number;
     relicScore: number;
+    bonusRoundSeconds: number;
+    spangScore: number;
   };
   player: {
     width: number;
@@ -50,6 +52,8 @@ export const GAME_CONFIG: GameConfig = {
     lives: 3,
     timerSeconds: 140,
     relicScore: 250,
+    bonusRoundSeconds: 35,
+    spangScore: 100,
   },
   player: {
     width: 24,

@@ -1,7 +1,9 @@
 import Phaser from "phaser";
 import { ACTOR_ARCHETYPES } from "../content/archetypes";
 import { GAME_CONFIG } from "../config";
+import type { BonusPickupDefinition, DoorwayDefinition } from "../types";
 import { HazardActor } from "./actors/HazardActor";
+import { BonusPickupActor } from "./actors/BonusPickupActor";
 import { RelicActor } from "./actors/RelicActor";
 import type {
   ActorInstanceDefinition,
@@ -23,6 +25,9 @@ export class RoomRuntime {
   private ladderViews: Phaser.GameObjects.Graphics[] = [];
   private hazardActors: HazardActor[] = [];
   private relicActors: RelicActor[] = [];
+  private bonusPickupActors: BonusPickupActor[] = [];
+  private doorwayViews: Phaser.GameObjects.Container[] = [];
+  private doorwayViewById = new Map<string, Phaser.GameObjects.Container>();
 
   constructor(private readonly scene: Phaser.Scene) {}
 
@@ -48,11 +53,22 @@ export class RoomRuntime {
       .forEach((relic) => {
         this.relicActors.push(new RelicActor(this.scene, relic));
       });
+
+    this.room.bonusPickups.forEach((pickup) => {
+      this.bonusPickupActors.push(new BonusPickupActor(this.scene, pickup));
+    });
+
+    this.room.doorways.forEach((doorway) => {
+      const view = this.createDoorwayView(doorway);
+      this.doorwayViews.push(view);
+      this.doorwayViewById.set(doorway.id, view);
+    });
   }
 
   update(dtSeconds: number): void {
     this.hazardActors.forEach((hazard) => hazard.update(dtSeconds));
     this.relicActors.forEach((relic) => relic.update(dtSeconds));
+    this.bonusPickupActors.forEach((pickup) => pickup.update(dtSeconds));
   }
 
   getRoom(): RoomDefinition {
@@ -149,6 +165,32 @@ export class RoomRuntime {
     return null;
   }
 
+  findOverlappingBonusPickup(bounds: Phaser.Geom.Rectangle): BonusPickupDefinition | null {
+    for (const pickup of this.bonusPickupActors) {
+      if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, pickup.getBounds())) {
+        return pickup.getDefinition();
+      }
+    }
+
+    return null;
+  }
+
+  findOverlappingDoorway(bounds: Phaser.Geom.Rectangle): DoorwayDefinition | null {
+    for (const doorway of this.room.doorways) {
+      const doorwayRect = new Phaser.Geom.Rectangle(
+        doorway.x - doorway.width / 2,
+        doorway.y - doorway.height / 2,
+        doorway.width,
+        doorway.height,
+      );
+      if (Phaser.Geom.Intersects.RectangleToRectangle(bounds, doorwayRect)) {
+        return doorway;
+      }
+    }
+
+    return null;
+  }
+
   collectRelic(relicId: string): void {
     const relic = this.relicActors.find((entry) => entry.getDefinition().id === relicId);
     if (!relic) {
@@ -159,15 +201,39 @@ export class RoomRuntime {
     this.relicActors = this.relicActors.filter((entry) => entry !== relic);
   }
 
+  collectBonusPickup(pickupId: string): void {
+    const pickup = this.bonusPickupActors.find((entry) => entry.getDefinition().id === pickupId);
+    if (!pickup) {
+      return;
+    }
+
+    pickup.collect();
+    this.bonusPickupActors = this.bonusPickupActors.filter((entry) => entry !== pickup);
+  }
+
+  setDoorwayActive(doorwayId: string, active: boolean): void {
+    const view = this.doorwayViewById.get(doorwayId);
+    if (!view) {
+      return;
+    }
+
+    view.setVisible(active);
+  }
+
   destroy(): void {
     this.platformViews.forEach((view) => view.destroy());
     this.ladderViews.forEach((view) => view.destroy());
     this.hazardActors.forEach((hazard) => hazard.destroy());
     this.relicActors.forEach((relic) => relic.destroy());
+    this.bonusPickupActors.forEach((pickup) => pickup.destroy());
+    this.doorwayViews.forEach((view) => view.destroy());
     this.platformViews = [];
     this.ladderViews = [];
     this.hazardActors = [];
     this.relicActors = [];
+    this.bonusPickupActors = [];
+    this.doorwayViews = [];
+    this.doorwayViewById.clear();
   }
 
   private resolveHazardTravelBounds(actor: ActorInstanceDefinition): { minX: number; maxX: number } {
@@ -258,6 +324,28 @@ export class RoomRuntime {
     view.strokeRect(left, top, railWidth, height);
     view.strokeRect(left + ladder.width - railWidth, top, railWidth, height);
     return view;
+  }
+
+  private createDoorwayView(doorway: DoorwayDefinition): Phaser.GameObjects.Container {
+    const container = this.scene.add.container(doorway.x, doorway.y);
+    container.setDepth(3);
+
+    const frame = this.scene.add.rectangle(0, 0, doorway.width, doorway.height, 0x2d1e2f, 0.24);
+    frame.setStrokeStyle(3, 0xf4d35e, 0.75);
+    const glow = this.scene.add.rectangle(0, 0, doorway.width - 16, doorway.height - 16, 0x9ef01a, 0.18);
+    glow.setStrokeStyle(2, 0xd9ed92, 0.55);
+    const lintel = this.scene.add.rectangle(0, -doorway.height / 2 + 10, doorway.width + 6, 12, 0x4f772d, 0.95);
+    const sign = this.scene.add.text(0, doorway.height / 2 + 12, doorway.prompt, {
+      fontFamily: "Courier New",
+      fontSize: "14px",
+      color: "#fefae0",
+      stroke: "#283618",
+      strokeThickness: 4,
+    });
+    sign.setOrigin(0.5, 0);
+
+    container.add([frame, glow, lintel, sign]);
+    return container;
   }
 
   private getPlatformSpan(platform: PlatformDefinition, inset = 0): HorizontalSpan {

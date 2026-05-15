@@ -10,6 +10,7 @@ describe("RunStateController", () => {
     expect(state.currentRoomId).toBe(ROOM_ORDER[0]);
     expect(state.lives).toBe(3);
     expect(state.score).toBe(0);
+    expect(state.bonusRound.status).toBe("locked");
     expect(state.status).toBe("playing");
   });
 
@@ -63,5 +64,57 @@ describe("RunStateController", () => {
 
     expect(controller.snapshot.collectedRelicIds).toEqual(["jade-mask"]);
     expect(controller.snapshot.score).toBe(250);
+  });
+
+  it("unlocks the bonus round after the flying cow token is collected", () => {
+    const controller = new RunStateController();
+
+    controller.collectRelic("fossil-shell");
+
+    expect(controller.snapshot.bonusRound.status).toBe("available");
+  });
+
+  it("tracks an active bonus round and returns to completed after it ends", () => {
+    const controller = new RunStateController();
+
+    controller.collectRelic("fossil-shell");
+    controller.startBonusRound({ roomId: "fossil-stair", x: 260, y: 372 });
+
+    expect(controller.snapshot.bonusRound.status).toBe("active");
+    expect(controller.snapshot.bonusRound.returnContext).toEqual({
+      roomId: "fossil-stair",
+      x: 260,
+      y: 372,
+    });
+
+    controller.completeBonusRound();
+
+    expect(controller.snapshot.bonusRound.status).toBe("completed");
+    expect(controller.snapshot.bonusRound.returnContext).toBeNull();
+  });
+
+  it("adds spang score without changing lives or relic count", () => {
+    const controller = new RunStateController();
+
+    controller.collectRelic("fossil-shell");
+    controller.startBonusRound({ roomId: "fossil-stair", x: 260, y: 372 });
+    controller.collectSpang();
+    controller.collectSpang();
+
+    expect(controller.snapshot.score).toBe(250 + 200);
+    expect(controller.snapshot.lives).toBe(3);
+    expect(controller.snapshot.collectedRelicIds).toEqual(["fossil-shell"]);
+    expect(controller.snapshot.bonusRound.spangsCollected).toBe(2);
+  });
+
+  it("does not allow the bonus round to restart after completion", () => {
+    const controller = new RunStateController();
+
+    controller.collectRelic("fossil-shell");
+    controller.startBonusRound({ roomId: "fossil-stair", x: 260, y: 372 });
+    controller.completeBonusRound();
+    controller.startBonusRound({ roomId: "fossil-stair", x: 260, y: 360 });
+
+    expect(controller.snapshot.bonusRound.status).toBe("completed");
   });
 });

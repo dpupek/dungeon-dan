@@ -41,6 +41,13 @@ export const ACTOR_ARCHETYPES: Record<ActorArchetypeId, ActorArchetype> = {
     behavior: "swoop",
     defaultSpeed: GAME_CONFIG.physics.hazardSpeed,
   },
+  "flying-cow": {
+    id: "flying-cow",
+    label: "Flying Cow",
+    animationSetId: ACTOR_ANIMATION_MANIFESTS["flying-cow"].id,
+    behavior: "swoop",
+    defaultSpeed: 72,
+  },
 };
 
 export const RELIC_ARCHETYPES: Record<RelicArchetypeId, RelicArchetype> = {
@@ -49,5 +56,11 @@ export const RELIC_ARCHETYPES: Record<RelicArchetypeId, RelicArchetype> = {
     label: "Golden Clam",
     animationSetId: RELIC_ANIMATION_MANIFESTS["golden-clam"].id,
     baseScale: 2.5,
+  },
+  spang: {
+    id: "spang",
+    label: "Spang",
+    animationSetId: RELIC_ANIMATION_MANIFESTS.spang.id,
+    baseScale: 1.8,
   },
 };

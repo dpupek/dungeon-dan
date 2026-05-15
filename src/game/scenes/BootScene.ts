@@ -29,6 +29,8 @@ export class BootScene extends Phaser.Scene {
     this.createPlayerAnimations();
     this.createRelicTexture("golden-clam-open", true);
     this.createRelicTexture("golden-clam-closed", false);
+    this.createSpangTexture("spang-a", false);
+    this.createSpangTexture("spang-b", true);
     this.createPaulTexture("paul-crab-a", false);
     this.createPaulTexture("paul-crab-b", true);
     this.createDaveTexture("dave-goat-a", false, false);
@@ -36,6 +38,8 @@ export class BootScene extends Phaser.Scene {
     this.createDaveTexture("dave-goat-scream", true, true);
     this.createMarkTexture("mark-wasp-a", false);
     this.createMarkTexture("mark-wasp-b", true);
+    this.createFlyingCowTexture("flying-cow-a", false);
+    this.createFlyingCowTexture("flying-cow-b", true);
     this.scene.start("title");
   }
 
@@ -215,6 +219,40 @@ export class BootScene extends Phaser.Scene {
     graphics.destroy();
   }
 
+  private createSpangTexture(key: string, tilted: boolean): void {
+    const graphics = this.make.graphics({ x: 0, y: 0 }, false);
+    const gold = Phaser.Display.Color.HexStringToColor("#f4d35e").color;
+    const goldHighlight = Phaser.Display.Color.HexStringToColor("#ffe8a3").color;
+    const red = Phaser.Display.Color.HexStringToColor("#d62839").color;
+    const blue = Phaser.Display.Color.HexStringToColor("#4ea8de").color;
+    const shadow = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.shadow).color;
+
+    graphics.fillStyle(shadow, 1);
+    graphics.fillRect(5, 5, 6, 6);
+    graphics.fillRect(7, 2, 2, 12);
+    graphics.fillRect(2, 7, 12, 2);
+
+    graphics.fillStyle(gold, 1);
+    graphics.fillRect(6, 6, 4, 4);
+    graphics.fillRect(7, 2, 2, 12);
+    graphics.fillRect(2, 7, 12, 2);
+
+    graphics.fillStyle(goldHighlight, 1);
+    graphics.fillRect(7, 3, 1, 10);
+    graphics.fillRect(3, 7, 10, 1);
+
+    graphics.fillStyle(red, 1);
+    graphics.fillRect(5, tilted ? 4 : 5, 2, 2);
+    graphics.fillRect(9, tilted ? 10 : 9, 2, 2);
+
+    graphics.fillStyle(blue, 1);
+    graphics.fillRect(9, tilted ? 4 : 5, 2, 2);
+    graphics.fillRect(5, tilted ? 10 : 9, 2, 2);
+
+    graphics.generateTexture(key, 16, 16);
+    graphics.destroy();
+  }
+
   private createPaulTexture(key: string, stepping: boolean): void {
     const graphics = this.make.graphics({ x: 0, y: 0 }, false);
     const shell = Phaser.Display.Color.HexStringToColor("#7a1f1f").color;
@@ -321,6 +359,54 @@ export class BootScene extends Phaser.Scene {
     graphics.fillRect(7, 11, 2, 2);
     graphics.fillRect(7, 13, 1, 1);
     graphics.fillRect(8, 13, 1, 1);
+
+    graphics.generateTexture(key, 16, 16);
+    graphics.destroy();
+  }
+
+  private createFlyingCowTexture(key: string, wingsRaised: boolean): void {
+    const graphics = this.make.graphics({ x: 0, y: 0 }, false);
+    const body = Phaser.Display.Color.HexStringToColor("#f2e8cf").color;
+    const patch = Phaser.Display.Color.HexStringToColor("#2f2f2f").color;
+    const wing = Phaser.Display.Color.HexStringToColor("#d9d2c5").color;
+    const horn = Phaser.Display.Color.HexStringToColor("#bcb8b1").color;
+    const nose = Phaser.Display.Color.HexStringToColor("#ef476f").color;
+    const bell = Phaser.Display.Color.HexStringToColor("#f4d35e").color;
+    const shadow = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.shadow).color;
+
+    graphics.fillStyle(wing, 0.95);
+    graphics.fillRect(1, wingsRaised ? 1 : 3, 5, 3);
+    graphics.fillRect(10, wingsRaised ? 1 : 3, 5, 3);
+    graphics.fillRect(2, wingsRaised ? 0 : 2, 4, 2);
+    graphics.fillRect(10, wingsRaised ? 0 : 2, 4, 2);
+
+    graphics.fillStyle(shadow, 1);
+    graphics.fillRect(3, 5, 10, 7);
+    graphics.fillRect(11, 4, 3, 3);
+    graphics.fillRect(4, 12, 2, 2);
+    graphics.fillRect(10, 12, 2, 2);
+
+    graphics.fillStyle(body, 1);
+    graphics.fillRect(4, 5, 8, 6);
+    graphics.fillRect(11, 5, 2, 2);
+    graphics.fillRect(5, 11, 2, 2);
+    graphics.fillRect(9, 11, 2, 2);
+
+    graphics.fillStyle(patch, 1);
+    graphics.fillRect(5, 6, 2, 2);
+    graphics.fillRect(9, 8, 2, 2);
+    graphics.fillRect(10, 5, 1, 2);
+
+    graphics.fillStyle(horn, 1);
+    graphics.fillRect(11, 3, 1, 2);
+    graphics.fillRect(13, 3, 1, 2);
+
+    graphics.fillStyle(nose, 1);
+    graphics.fillRect(13, 6, 2, 2);
+
+    graphics.fillStyle(bell, 1);
+    graphics.fillRect(8, 11, 1, 2);
+    graphics.fillRect(7, 11, 3, 1);
 
     graphics.generateTexture(key, 16, 16);
     graphics.destroy();
