@@ -63,6 +63,12 @@ export const RELIC_ARCHETYPES: Record<RelicArchetypeId, RelicArchetype> = {
     animationSetId: RELIC_ANIMATION_MANIFESTS["stormshaft-bow"].id,
     baseScale: 2.25,
   },
+  "three-black-axes": {
+    id: "three-black-axes",
+    label: "Three Black Axes",
+    animationSetId: RELIC_ANIMATION_MANIFESTS["three-black-axes"].id,
+    baseScale: 2.25,
+  },
   spang: {
     id: "spang",
     label: "Spang",

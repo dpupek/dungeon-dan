@@ -85,6 +85,11 @@ export const RELIC_ANIMATION_MANIFESTS: Record<RelicArchetypeId, RelicAnimationM
     idle: ["stormshaft-bow-a", "stormshaft-bow-b"],
     collected: [],
   },
+  "three-black-axes": {
+    id: "three-black-axes",
+    idle: ["three-black-axes-a", "three-black-axes-b"],
+    collected: [],
+  },
   spang: {
     id: "spang",
     idle: ["spang-a", "spang-b"],

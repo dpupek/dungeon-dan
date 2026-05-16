@@ -17,7 +17,16 @@ describe("RunStateController", () => {
 
   it("collects relics once and wins after all relics are found", () => {
     const controller = new RunStateController();
-    const ids = ["jade-mask", "sun-disc", "amber-idol", "moon-gem", "fossil-shell", "sky-crown", "stormshaft-bow"];
+    const ids = [
+      "jade-mask",
+      "sun-disc",
+      "amber-idol",
+      "moon-gem",
+      "fossil-shell",
+      "sky-crown",
+      "stormshaft-bow",
+      "three-black-axes",
+    ];
 
     ids.forEach((id) => controller.collectRelic(id));
 
@@ -123,9 +132,13 @@ describe("RunStateController", () => {
     const controller = new RunStateController();
 
     controller.completeStoryTrigger("stormshaft-range-intro-trigger");
+    controller.completeStoryTrigger("black-axes-yard-intro-trigger");
     controller.completeStoryTrigger("stormshaft-range-intro-trigger");
 
-    expect(controller.snapshot.completedStoryTriggerIds).toEqual(["stormshaft-range-intro-trigger"]);
+    expect(controller.snapshot.completedStoryTriggerIds).toEqual([
+      "stormshaft-range-intro-trigger",
+      "black-axes-yard-intro-trigger",
+    ]);
     expect(controller.hasCompletedStoryTrigger("stormshaft-range-intro-trigger")).toBe(true);
   });
 });

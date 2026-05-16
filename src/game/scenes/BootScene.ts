@@ -31,6 +31,8 @@ export class BootScene extends Phaser.Scene {
     this.createRelicTexture("golden-clam-closed", false);
     this.createStormshaftBowTexture("stormshaft-bow-a", false);
     this.createStormshaftBowTexture("stormshaft-bow-b", true);
+    this.createThreeBlackAxesTexture("three-black-axes-a", false);
+    this.createThreeBlackAxesTexture("three-black-axes-b", true);
     this.createSpangTexture("spang-a", false);
     this.createSpangTexture("spang-b", true);
     this.createPaulTexture("paul-crab-a", false);
@@ -289,6 +291,46 @@ export class BootScene extends Phaser.Scene {
     graphics.fillRect(8, 5, 1, 1);
     graphics.fillRect(7, 9, 1, 1);
     graphics.fillRect(11, 6, 2, 1);
+
+    graphics.generateTexture(key, 16, 16);
+    graphics.destroy();
+  }
+
+  private createThreeBlackAxesTexture(key: string, raised: boolean): void {
+    const graphics = this.make.graphics({ x: 0, y: 0 }, false);
+    const haft = Phaser.Display.Color.HexStringToColor("#7f5539").color;
+    const haftHighlight = Phaser.Display.Color.HexStringToColor("#ddb892").color;
+    const blade = Phaser.Display.Color.HexStringToColor("#343a40").color;
+    const bladeHighlight = Phaser.Display.Color.HexStringToColor("#6c757d").color;
+    const wrap = Phaser.Display.Color.HexStringToColor("#d62828").color;
+    const shadow = Phaser.Display.Color.HexStringToColor(GAME_CONFIG.palette.shadow).color;
+
+    const topOffset = raised ? 0 : 1;
+    const axes = [3, 7, 11];
+
+    axes.forEach((x, index) => {
+      const y = 4 + ((index + topOffset) % 2);
+      graphics.fillStyle(shadow, 1);
+      graphics.fillRect(x - 1, y, 2, 9);
+      graphics.fillRect(x - 3, y - 1, 3, 4);
+      graphics.fillRect(x + 1, y - 1, 2, 3);
+
+      graphics.fillStyle(haft, 1);
+      graphics.fillRect(x, y, 1, 8);
+
+      graphics.fillStyle(haftHighlight, 1);
+      graphics.fillRect(x, y + 1, 1, 5);
+
+      graphics.fillStyle(blade, 1);
+      graphics.fillRect(x - 2, y, 2, 3);
+      graphics.fillRect(x + 1, y, 1, 2);
+
+      graphics.fillStyle(bladeHighlight, 1);
+      graphics.fillRect(x - 2, y, 1, 2);
+
+      graphics.fillStyle(wrap, 1);
+      graphics.fillRect(x, y + 5, 1, 1);
+    });
 
     graphics.generateTexture(key, 16, 16);
     graphics.destroy();

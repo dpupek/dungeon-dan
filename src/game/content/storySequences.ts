@@ -44,4 +44,49 @@ export const STORY_SEQUENCES: Record<string, StorySequenceDefinition> = {
       { type: "end" },
     ],
   },
+  "three-black-axes-intro": {
+    id: "three-black-axes-intro",
+    skippable: true,
+    beats: [
+      {
+        type: "line",
+        speakerId: "steward-echo",
+        speakerName: "Steward Echo",
+        portraitKey: "SE",
+        text: "The Three Black Axes do not honor flinching. They ask for a line, a choice, and the nerve to keep it.",
+      },
+      { type: "camera-focus", x: 760, y: 270, durationMs: 320 },
+      { type: "pause", durationMs: 300 },
+      {
+        type: "line",
+        speakerId: "steward-echo",
+        speakerName: "Steward Echo",
+        portraitKey: "SE",
+        text: "Read the crossings. Step into one lane, then commit before the court closes it.",
+      },
+      { type: "end" },
+    ],
+  },
+  "three-black-axes-outro": {
+    id: "three-black-axes-outro",
+    skippable: true,
+    beats: [
+      {
+        type: "line",
+        speakerId: "steward-echo",
+        speakerName: "Steward Echo",
+        portraitKey: "SE",
+        text: "You did not scatter your will. You chose the cut and carried it through.",
+      },
+      { type: "grant-relic", relicId: "three-black-axes" },
+      {
+        type: "line",
+        speakerId: "steward-echo",
+        speakerName: "Steward Echo",
+        portraitKey: "SE",
+        text: "Take the Three Black Axes, and remember that precision is courage made visible.",
+      },
+      { type: "end" },
+    ],
+  },
 };

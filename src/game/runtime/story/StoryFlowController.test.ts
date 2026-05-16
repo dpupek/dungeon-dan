@@ -29,4 +29,22 @@ describe("StoryFlowController", () => {
     expect(actions).toContainEqual({ type: "sequence-ended", sequenceId: "stormshaft-bow-outro" });
     expect(controller.isActive()).toBe(false);
   });
+
+  it("processes camera-focus and pause beats before the next line", () => {
+    const controller = new StoryFlowController(STORY_SEQUENCES);
+
+    const startActions = controller.startSequence("three-black-axes-intro");
+
+    expect(startActions).toEqual([{ type: "none" }]);
+    expect(controller.getPresentation()?.text).toContain("do not honor flinching");
+
+    const focusActions = controller.advance();
+    expect(focusActions).toContainEqual({ type: "camera-focus", x: 760, y: 270, durationMs: 320 });
+    expect(controller.getPresentation()).toBeNull();
+
+    expect(controller.update(150)).toEqual([{ type: "none" }]);
+    const lineActions = controller.update(200);
+    expect(lineActions).toEqual([{ type: "none" }]);
+    expect(controller.getPresentation()?.text).toContain("Read the crossings");
+  });
 });

@@ -6,7 +6,8 @@ export type RoomId =
   | "fossil-stair"
   | "idol-hall"
   | "maypole-spang-run"
-  | "stormshaft-range";
+  | "stormshaft-range"
+  | "black-axes-yard";
 export type FloorLevel = "ground" | "basement";
 export type AnimationSetId =
   | "dan"
@@ -16,9 +17,10 @@ export type AnimationSetId =
   | "flying-cow"
   | "golden-clam"
   | "stormshaft-bow"
+  | "three-black-axes"
   | "spang";
 export type ActorArchetypeId = "paul-crab" | "dave-goat" | "mark-wasp" | "flying-cow";
-export type RelicArchetypeId = "golden-clam" | "stormshaft-bow" | "spang";
+export type RelicArchetypeId = "golden-clam" | "stormshaft-bow" | "three-black-axes" | "spang";
 
 export interface PlatformDefinition {
   x: number;

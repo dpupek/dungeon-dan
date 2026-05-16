@@ -5,7 +5,7 @@ import { resolveRoomBoundaryAction } from "./roomTransitions";
 
 describe("resolveRoomBoundaryAction", () => {
   it("transitions right when the room has an authored right exit", () => {
-    const room = getRoomDefinition("idol-hall");
+    const room = getRoomDefinition("stormshaft-range");
 
     expect(resolveRoomBoundaryAction(room, GAME_CONFIG.world.width + 21)).toEqual({
       type: "transition",
@@ -14,7 +14,7 @@ describe("resolveRoomBoundaryAction", () => {
   });
 
   it("clamps the player inside rooms with no authored right exit", () => {
-    const room = getRoomDefinition("stormshaft-range");
+    const room = getRoomDefinition("black-axes-yard");
 
     expect(resolveRoomBoundaryAction(room, GAME_CONFIG.world.width + 21)).toEqual({
       type: "clamp",

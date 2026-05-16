@@ -177,8 +177,9 @@ Implemented in the current slice:
 Implemented in the current slice:
 
 - `stormshaft-range` extends the main route with a dedicated Stormshaft Bow room.
+- `black-axes-yard` now follows it with a dedicated Three Black Axes room and a commitment-focused hazard layout.
 - The room uses steward-echo dialogue and a Phaser-native cutscene/dialogue overlay instead of scene-local text.
-- The first story-flow pass supports room-authored trigger zones, soft gameplay lock during dialogue, advance/skip controls, and relic-grant beats that can hand off to the end scene.
+- The story-flow pass now supports multiple authored champion rooms with room-authored trigger zones, soft gameplay lock during dialogue, advance/skip controls, camera-focus/pause beats, and relic-grant beats that can hand off to the end scene.
 
 ### Phase 7: Polish and validation
 
